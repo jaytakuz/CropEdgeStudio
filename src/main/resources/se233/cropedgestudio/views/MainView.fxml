@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="se233.cropedgestudio.controllers.MainController"
+      prefHeight="600.0" prefWidth="800.0">
+    <MenuBar>
+        <Menu text="File">
+            <MenuItem text="Open"/>
+            <MenuItem text="Save"/>
+            <SeparatorMenuItem/>
+            <MenuItem text="Exit"/>
+        </Menu>
+        <Menu text="Edit">
+            <MenuItem fx:id="detectEdgeMenuItem" text="Detect Edge" onAction="#handleDetectEdge"/>
+            <MenuItem fx:id="cropMenuItem" text="Crop" onAction="#handleCrop"/>
+        </Menu>
+        <Menu text="Help">
+            <MenuItem text="About"/>
+        </Menu>
+    </MenuBar>
+    <StackPane fx:id="contentArea" VBox.vgrow="ALWAYS">
+        <!-- DragAndDropPane will be added here programmatically -->
+    </StackPane>
+</VBox>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.shape.Rectangle?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="se233.cropedgestudio.controllers.CropController"
+      spacing="10" alignment="CENTER">
+    <StackPane>
+        <ImageView fx:id="imageView" fitWidth="400" fitHeight="400" preserveRatio="true" />
+        <Rectangle fx:id="cropRectangle" fill="transparent" stroke="white" strokeWidth="2" />
+    </StackPane>
+    <HBox spacing="10" alignment="CENTER">
+        <Label text="X:" />
+        <TextField fx:id="xTextField" prefWidth="50" />
+        <Label text="Y:" />
+        <TextField fx:id="yTextField" prefWidth="50" />
+        <Label text="Width:" />
+        <TextField fx:id="widthTextField" prefWidth="50" />
+        <Label text="Height:" />
+        <TextField fx:id="heightTextField" prefWidth="50" />
+    </HBox>
+    <Button text="Crop" onAction="#handleCrop" />
+    <Button text="Save" onAction="#handleSave" />
+</VBox>

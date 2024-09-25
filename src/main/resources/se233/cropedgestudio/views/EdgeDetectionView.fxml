@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="se233.cropedgestudio.controllers.EdgeDetectionController"
+      spacing="10" alignment="CENTER">
+    <Button text="Open Image" onAction="#handleOpenImage" />
+    <HBox spacing="10" alignment="CENTER">
+        <VBox alignment="CENTER" spacing="10">
+            <Label text="Original Image" />
+            <ImageView fx:id="originalImageView" fitWidth="300" fitHeight="300" preserveRatio="true" />
+        </VBox>
+        <VBox alignment="CENTER" spacing="10">
+            <Label text="Processed Image" />
+            <ImageView fx:id="processedImageView" fitWidth="300" fitHeight="300" preserveRatio="true" />
+        </VBox>
+    </HBox>
+    <HBox spacing="10" alignment="CENTER">
+        <Label text="Edge Detection Algorithm:" />
+        <ComboBox fx:id="algorithmComboBox" />
+    </HBox>
+    <VBox fx:id="parametersVBox" spacing="5" alignment="CENTER" />
+    <Button text="Apply" onAction="#applyEdgeDetection" />
+    <Button text="Save" onAction="#handleSave" />
+</VBox>
