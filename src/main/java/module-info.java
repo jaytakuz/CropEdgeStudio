@@ -1,8 +1,10 @@
-module se233.changescreentest {
+module se233.cropedgestudio {
     requires javafx.controls;
     requires javafx.fxml;
+    requires javafx.graphics;
+    requires java.desktop;
 
-
-    opens se233.changescreentest to javafx.fxml;
-    exports se233.changescreentest;
+    opens se233.cropedgestudio to javafx.fxml;
+    opens se233.cropedgestudio.controllers to javafx.fxml;
+    exports se233.cropedgestudio;
 }
