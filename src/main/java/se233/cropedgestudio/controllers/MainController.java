@@ -6,6 +6,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.StackPane;
 import se233.cropedgestudio.components.DragAndDropPane;
+import se233.cropedgestudio.utils.BatchProcessor;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,14 +54,13 @@ public class MainController {
     }
 
     private void handleDroppedFiles(List<File> files) {
-        for (File file : files) {
-            if (isValidFile(file)) {
-                System.out.println("Dropped file: " + file.getAbsolutePath());
-                // TODO: Process the file (either add to a list for batch processing or process immediately)
-            } else {
-                System.out.println("Invalid file: " + file.getName());
-                // TODO: Show an error message to the user
-            }
+        try {
+            List<File> processedFiles = BatchProcessor.processFiles(files);
+            // TODO: Implement logic to handle processed files (e.g., show in a list, process immediately, etc.)
+            System.out.println("Processed " + processedFiles.size() + " files");
+        } catch (IOException e) {
+            e.printStackTrace();
+            // TODO: Show error dialog
         }
     }
 
