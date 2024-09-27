@@ -17,11 +17,7 @@
     <HBox spacing="20" alignment="CENTER">
         <Button text="Open Image" onAction="#handleOpenImage" />
         <ComboBox fx:id="algorithmChoice" promptText="Select Algorithm" />
-        <Button text="Batch Process" onAction="#handleBatchProcessing">
-            <tooltip>
-                <Tooltip text="Process multiple images at once" />
-            </tooltip>
-        </Button>
+        <Button text="Batch Process" onAction="#handleBatchProcessing" />
     </HBox>
 
     <TabPane fx:id="algorithmTabPane" VBox.vgrow="ALWAYS">
@@ -42,10 +38,10 @@
                     <Slider fx:id="robertsStrengthSlider" min="1" max="100" value="50" showTickLabels="true" showTickMarks="true" />
                     <Label fx:id="robertsStrengthLabel" text="50" />
                 </HBox>
-                <Button text="DETECT!" onAction="#applyRobertsCross" />
+                <Button text="Apply Roberts Cross" onAction="#applyRobertsCross" />
             </VBox>
         </Tab>
-        <Tab text="Sobel-Feldman" closable="false">
+        <Tab text="Sobel" closable="false">
             <VBox spacing="10" alignment="CENTER">
                 <HBox spacing="20" alignment="CENTER">
                     <VBox alignment="CENTER" spacing="10">
@@ -57,7 +53,7 @@
                         <ImageView fx:id="sobelAfterImageView" fitWidth="300" fitHeight="300" preserveRatio="true" />
                     </VBox>
                 </HBox>
-                <Button text="DETECT!" onAction="#applySobel" />
+                <Button text="Apply Sobel" onAction="#applySobel" />
             </VBox>
         </Tab>
         <Tab text="Laplacian" closable="false">
@@ -80,7 +76,7 @@
                     </RadioButton>
                     <RadioButton fx:id="radio5x5" text="5x5" toggleGroup="$laplacianMaskSize" />
                 </HBox>
-                <Button text="DETECT!" onAction="#applyLaplacian" />
+                <Button text="Apply Laplacian" onAction="#applyLaplacian" />
             </VBox>
         </Tab>
     </TabPane>

@@ -6,7 +6,10 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javafx.stage.DirectoryChooser;
+import se233.cropedgestudio.models.ProcessingJob;
+import se233.cropedgestudio.services.BatchProcessorService;
 import se233.cropedgestudio.utils.ImageProcessor;
+import se233.cropedgestudio.utils.ImageProcessingException;
 
 import javax.imageio.ImageIO;
 import java.io.File;
@@ -18,6 +21,7 @@ import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.geometry.Pos;
 import javafx.stage.Modality;
+import java.util.stream.Collectors;
 
 public class EdgeDetectionController {
 
@@ -33,6 +37,12 @@ public class EdgeDetectionController {
     @FXML private ImageView laplacianAfterImageView;
     @FXML private RadioButton radio3x3;
     @FXML private RadioButton radio5x5;
+
+    @FXML
+    private Label statusLabel;
+
+    @FXML
+    private ProgressBar progressBar;
 
     private Image originalImage;
 
@@ -162,17 +172,49 @@ public class EdgeDetectionController {
             return;
         }
 
-        DirectoryChooser directoryChooser = new DirectoryChooser();
-        directoryChooser.setTitle("Select Input Directory");
-        File inputDir = directoryChooser.showDialog(null);
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")
+        );
+        List<File> selectedFiles = fileChooser.showOpenMultipleDialog(null);
 
-        if (inputDir != null) {
+        if (selectedFiles != null && !selectedFiles.isEmpty()) {
             DirectoryChooser outputChooser = new DirectoryChooser();
             outputChooser.setTitle("Select Output Directory");
             File outputDir = outputChooser.showDialog(null);
 
             if (outputDir != null) {
-                processBatch(inputDir, outputDir);
+                String algorithm = algorithmChoice.getValue();
+                int strength = (int) robertsStrengthSlider.getValue();
+                int maskSize = radio5x5.isSelected() ? 5 : 3;
+
+                List<ProcessingJob> jobs = selectedFiles.stream()
+                        .map(file -> new ProcessingJob(
+                                file,
+                                new File(outputDir, "processed_" + file.getName()),
+                                algorithm,
+                                strength,
+                                maskSize))
+                        .collect(Collectors.toList());
+
+                BatchProcessorService batchService = new BatchProcessorService(jobs, Runtime.getRuntime().availableProcessors());
+
+                progressBar.progressProperty().bind(batchService.progressProperty());
+                statusLabel.textProperty().bind(batchService.messageProperty());
+
+                batchService.setOnSucceeded(e -> {
+                    showAlert("Success", "Batch processing completed successfully.", Alert.AlertType.INFORMATION);
+                    progressBar.progressProperty().unbind();
+                    statusLabel.textProperty().unbind();
+                });
+
+                batchService.setOnFailed(e -> {
+                    showAlert("Error", "Batch processing failed: " + batchService.getException().getMessage(), Alert.AlertType.ERROR);
+                    progressBar.progressProperty().unbind();
+                    statusLabel.textProperty().unbind();
+                });
+
+                batchService.start();
             }
         }
     }
@@ -251,4 +293,6 @@ public class EdgeDetectionController {
         alert.setContentText(content);
         alert.showAndWait();
     }
+
+
 }
