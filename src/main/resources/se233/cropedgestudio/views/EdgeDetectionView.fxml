@@ -17,72 +17,36 @@
     <HBox spacing="20" alignment="CENTER">
         <Button text="Open Image" onAction="#handleOpenImage" />
         <ComboBox fx:id="algorithmChoice" promptText="Select Algorithm" />
-        <Button text="Batch Process" onAction="#handleBatchProcessing" />
     </HBox>
-
-    <TabPane fx:id="algorithmTabPane" VBox.vgrow="ALWAYS">
-        <Tab text="Roberts Cross" closable="false">
-            <VBox spacing="10" alignment="CENTER">
-                <HBox spacing="20" alignment="CENTER">
-                    <VBox alignment="CENTER" spacing="10">
-                        <Label text="Before" />
-                        <ImageView fx:id="robertsBeforeImageView" fitWidth="300" fitHeight="300" preserveRatio="true" />
-                    </VBox>
-                    <VBox alignment="CENTER" spacing="10">
-                        <Label text="After" />
-                        <ImageView fx:id="robertsAfterImageView" fitWidth="300" fitHeight="300" preserveRatio="true" />
-                    </VBox>
-                </HBox>
-                <HBox spacing="10" alignment="CENTER">
-                    <Label text="Strength:" />
-                    <Slider fx:id="robertsStrengthSlider" min="1" max="100" value="50" showTickLabels="true" showTickMarks="true" />
-                    <Label fx:id="robertsStrengthLabel" text="50" />
-                </HBox>
-                <Button text="Apply Roberts Cross" onAction="#applyRobertsCross" />
-            </VBox>
-        </Tab>
-        <Tab text="Sobel" closable="false">
-            <VBox spacing="10" alignment="CENTER">
-                <HBox spacing="20" alignment="CENTER">
-                    <VBox alignment="CENTER" spacing="10">
-                        <Label text="Before" />
-                        <ImageView fx:id="sobelBeforeImageView" fitWidth="300" fitHeight="300" preserveRatio="true" />
-                    </VBox>
-                    <VBox alignment="CENTER" spacing="10">
-                        <Label text="After" />
-                        <ImageView fx:id="sobelAfterImageView" fitWidth="300" fitHeight="300" preserveRatio="true" />
-                    </VBox>
-                </HBox>
-                <Button text="Apply Sobel" onAction="#applySobel" />
-            </VBox>
-        </Tab>
-        <Tab text="Laplacian" closable="false">
-            <VBox spacing="10" alignment="CENTER">
-                <HBox spacing="20" alignment="CENTER">
-                    <VBox alignment="CENTER" spacing="10">
-                        <Label text="Before" />
-                        <ImageView fx:id="laplacianBeforeImageView" fitWidth="300" fitHeight="300" preserveRatio="true" />
-                    </VBox>
-                    <VBox alignment="CENTER" spacing="10">
-                        <Label text="After" />
-                        <ImageView fx:id="laplacianAfterImageView" fitWidth="300" fitHeight="300" preserveRatio="true" />
-                    </VBox>
-                </HBox>
-                <HBox spacing="20" alignment="CENTER">
-                    <RadioButton fx:id="radio3x3" text="3x3" selected="true">
-                        <toggleGroup>
-                            <ToggleGroup fx:id="laplacianMaskSize" />
-                        </toggleGroup>
-                    </RadioButton>
-                    <RadioButton fx:id="radio5x5" text="5x5" toggleGroup="$laplacianMaskSize" />
-                </HBox>
-                <Button text="Apply Laplacian" onAction="#applyLaplacian" />
-            </VBox>
-        </Tab>
-    </TabPane>
 
     <HBox spacing="20" alignment="CENTER">
-        <Button text="Save" onAction="#handleSave" />
-        <Button text="Reset" onAction="#handleReset" />
+        <VBox alignment="CENTER" spacing="10">
+            <Label text="Input Image" />
+            <ImageView fx:id="inputImageView" fitWidth="300" fitHeight="300" preserveRatio="true" />
+        </VBox>
+        <VBox alignment="CENTER" spacing="10">
+            <Label text="Output Image" />
+            <ImageView fx:id="outputImageView" fitWidth="300" fitHeight="300" preserveRatio="true" />
+        </VBox>
     </HBox>
+
+    <VBox spacing="10" alignment="CENTER">
+        <HBox spacing="10" alignment="CENTER">
+            <Label text="Roberts Cross Strength:" />
+            <Slider fx:id="robertsStrengthSlider" min="1" max="100" value="50" showTickLabels="true" showTickMarks="true" />
+        </HBox>
+        <HBox spacing="20" alignment="CENTER">
+            <Label text="Laplacian Mask Size:" />
+            <RadioButton fx:id="radio3x3" text="3x3" selected="true">
+                <toggleGroup>
+                    <ToggleGroup fx:id="laplacianMaskSize" />
+                </toggleGroup>
+            </RadioButton>
+            <RadioButton fx:id="radio5x5" text="5x5" toggleGroup="$laplacianMaskSize" />
+        </HBox>
+    </VBox>
+
+    <Button text="Apply Edge Detection" onAction="#applyEdgeDetection" />
+
+    <Button text="Batch Process" onAction="#handleBatchProcessing" />
 </VBox>
