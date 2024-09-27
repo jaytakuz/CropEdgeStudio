@@ -4,47 +4,50 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import javafx.stage.DirectoryChooser;
 import se233.cropedgestudio.utils.ImageProcessor;
 
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import javafx.concurrent.Task;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import javafx.scene.Scene;
+import javafx.geometry.Pos;
+import javafx.stage.Modality;
 
 public class EdgeDetectionController {
 
-    @FXML private ImageView originalImageView;
-    @FXML private ImageView processedImageView;
-    @FXML private ComboBox<String> algorithmComboBox;
-    @FXML private VBox parametersVBox;
-    @FXML private Slider thresholdSlider;
-    @FXML private Label thresholdLabel;
+    @FXML private TabPane algorithmTabPane;
+    @FXML private ComboBox<String> algorithmChoice;
+    @FXML private ImageView robertsBeforeImageView;
+    @FXML private ImageView robertsAfterImageView;
+    @FXML private Slider robertsStrengthSlider;
+    @FXML private Label robertsStrengthLabel;
+    @FXML private ImageView sobelBeforeImageView;
+    @FXML private ImageView sobelAfterImageView;
+    @FXML private ImageView laplacianBeforeImageView;
+    @FXML private ImageView laplacianAfterImageView;
+    @FXML private RadioButton radio3x3;
+    @FXML private RadioButton radio5x5;
 
     private Image originalImage;
 
     @FXML
     public void initialize() {
-        algorithmComboBox.getItems().addAll("Roberts Cross", "Sobel", "Laplacian");
-        algorithmComboBox.getSelectionModel().selectFirst();
-        algorithmComboBox.setOnAction(e -> updateParametersUI());
-
-        thresholdSlider = new Slider(0, 255, 128);
-        thresholdSlider.setShowTickLabels(true);
-        thresholdSlider.setShowTickMarks(true);
-        thresholdSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            thresholdLabel.setText(String.format("Threshold: %.0f", newValue));
-            applyEdgeDetection();
+        algorithmChoice.getItems().addAll("Roberts Cross", "Sobel", "Laplacian");
+        algorithmChoice.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                algorithmTabPane.getSelectionModel().select(algorithmChoice.getSelectionModel().getSelectedIndex());
+            }
         });
 
-        thresholdLabel = new Label("Threshold: 128");
-
-        updateParametersUI();
-    }
-
-    private void updateParametersUI() {
-        parametersVBox.getChildren().clear();
-        parametersVBox.getChildren().addAll(thresholdLabel, thresholdSlider);
+        robertsStrengthSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            robertsStrengthLabel.setText(String.format("%.0f", newVal.doubleValue()));
+        });
     }
 
     @FXML
@@ -56,25 +59,69 @@ public class EdgeDetectionController {
         File selectedFile = fileChooser.showOpenDialog(null);
 
         if (selectedFile != null) {
-            originalImage = new Image(selectedFile.toURI().toString());
-            originalImageView.setImage(originalImage);
-            applyEdgeDetection();
+            try {
+                originalImage = new Image(selectedFile.toURI().toString());
+                robertsBeforeImageView.setImage(originalImage);
+                sobelBeforeImageView.setImage(originalImage);
+                laplacianBeforeImageView.setImage(originalImage);
+                showAlert("Success", "Image loaded successfully.", Alert.AlertType.INFORMATION);
+            } catch (Exception e) {
+                showAlert("Error", "Failed to load image: " + e.getMessage(), Alert.AlertType.ERROR);
+            }
         }
     }
 
     @FXML
-    private void applyEdgeDetection() {
+    private void applyRobertsCross() {
         if (originalImage != null) {
-            String selectedAlgorithm = algorithmComboBox.getValue();
-            double threshold = thresholdSlider.getValue();
-            Image processedImage = ImageProcessor.detectEdges(originalImage, selectedAlgorithm, threshold);
-            processedImageView.setImage(processedImage);
+            try {
+                int strength = (int) robertsStrengthSlider.getValue();
+                Image processedImage = ImageProcessor.applyRobertsCross(originalImage, strength);
+                robertsAfterImageView.setImage(processedImage);
+                showAlert("Success", "Roberts Cross applied successfully.", Alert.AlertType.INFORMATION);
+            } catch (Exception e) {
+                showAlert("Error", "Failed to apply Roberts Cross: " + e.getMessage(), Alert.AlertType.ERROR);
+            }
+        } else {
+            showAlert("Error", "Please load an image first.", Alert.AlertType.WARNING);
+        }
+    }
+
+    @FXML
+    private void applySobel() {
+        if (originalImage != null) {
+            try {
+                Image processedImage = ImageProcessor.applySobel(originalImage);
+                sobelAfterImageView.setImage(processedImage);
+                showAlert("Success", "Sobel filter applied successfully.", Alert.AlertType.INFORMATION);
+            } catch (Exception e) {
+                showAlert("Error", "Failed to apply Sobel filter: " + e.getMessage(), Alert.AlertType.ERROR);
+            }
+        } else {
+            showAlert("Error", "Please load an image first.", Alert.AlertType.WARNING);
+        }
+    }
+
+    @FXML
+    private void applyLaplacian() {
+        if (originalImage != null) {
+            try {
+                int maskSize = radio5x5.isSelected() ? 5 : 3;
+                Image processedImage = ImageProcessor.applyLaplacian(originalImage, maskSize);
+                laplacianAfterImageView.setImage(processedImage);
+                showAlert("Success", "Laplacian filter applied successfully.", Alert.AlertType.INFORMATION);
+            } catch (Exception e) {
+                showAlert("Error", "Failed to apply Laplacian filter: " + e.getMessage(), Alert.AlertType.ERROR);
+            }
+        } else {
+            showAlert("Error", "Please load an image first.", Alert.AlertType.WARNING);
         }
     }
 
     @FXML
     private void handleSave() {
-        if (processedImageView.getImage() != null) {
+        ImageView currentAfterImageView = (ImageView) algorithmTabPane.getSelectionModel().getSelectedItem().getContent().lookup("ImageView");
+        if (currentAfterImageView != null && currentAfterImageView.getImage() != null) {
             FileChooser fileChooser = new FileChooser();
             fileChooser.getExtensionFilters().add(
                     new FileChooser.ExtensionFilter("PNG files (*.png)", "*.png")
@@ -82,12 +129,126 @@ public class EdgeDetectionController {
             File file = fileChooser.showSaveDialog(null);
             if (file != null) {
                 try {
-                    ImageIO.write(ImageProcessor.fromFXImage(processedImageView.getImage()), "png", file);
+                    ImageIO.write(ImageProcessor.fromFXImage(currentAfterImageView.getImage()), "png", file);
+                    showAlert("Success", "Image saved successfully.", Alert.AlertType.INFORMATION);
                 } catch (IOException e) {
-                    e.printStackTrace();
-                    // TODO: Show error dialog
+                    showAlert("Error", "Failed to save image: " + e.getMessage(), Alert.AlertType.ERROR);
                 }
             }
+        } else {
+            showAlert("Error", "No processed image to save.", Alert.AlertType.WARNING);
         }
+    }
+
+    @FXML
+    private void handleReset() {
+        if (originalImage != null) {
+            robertsBeforeImageView.setImage(originalImage);
+            sobelBeforeImageView.setImage(originalImage);
+            laplacianBeforeImageView.setImage(originalImage);
+            robertsAfterImageView.setImage(null);
+            sobelAfterImageView.setImage(null);
+            laplacianAfterImageView.setImage(null);
+            showAlert("Success", "Images reset to original.", Alert.AlertType.INFORMATION);
+        } else {
+            showAlert("Error", "No original image to reset to.", Alert.AlertType.WARNING);
+        }
+    }
+
+    @FXML
+    private void handleBatchProcessing() {
+        if (algorithmChoice.getValue() == null) {
+            showAlert("Error", "Please select an algorithm first.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle("Select Input Directory");
+        File inputDir = directoryChooser.showDialog(null);
+
+        if (inputDir != null) {
+            DirectoryChooser outputChooser = new DirectoryChooser();
+            outputChooser.setTitle("Select Output Directory");
+            File outputDir = outputChooser.showDialog(null);
+
+            if (outputDir != null) {
+                processBatch(inputDir, outputDir);
+            }
+        }
+    }
+
+    private void processBatch(File inputDir, File outputDir) {
+        File[] imageFiles = inputDir.listFiles((dir, name) -> name.toLowerCase().endsWith(".png") || name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".jpeg"));
+
+        if (imageFiles == null || imageFiles.length == 0) {
+            showAlert("Error", "No image files found in the selected directory.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        ProgressIndicator progressIndicator = new ProgressIndicator();
+        Label progressLabel = new Label("Processing images...");
+        VBox progressBox = new VBox(10, progressLabel, progressIndicator);
+        progressBox.setAlignment(Pos.CENTER);
+
+        Stage progressStage = new Stage();
+        progressStage.initModality(Modality.APPLICATION_MODAL);
+        progressStage.setScene(new Scene(progressBox, 250, 100));
+        progressStage.show();
+
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                int total = imageFiles.length;
+                for (int i = 0; i < total; i++) {
+                    File file = imageFiles[i];
+                    Image image = new Image(file.toURI().toString());
+                    Image processedImage;
+
+                    switch (algorithmChoice.getValue()) {
+                        case "Roberts Cross":
+                            processedImage = ImageProcessor.applyRobertsCross(image, (int) robertsStrengthSlider.getValue());
+                            break;
+                        case "Sobel":
+                            processedImage = ImageProcessor.applySobel(image);
+                            break;
+                        case "Laplacian":
+                            processedImage = ImageProcessor.applyLaplacian(image, radio5x5.isSelected() ? 5 : 3);
+                            break;
+                        default:
+                            throw new IllegalStateException("Unexpected value: " + algorithmChoice.getValue());
+                    }
+
+                    File outputFile = new File(outputDir, "processed_" + file.getName());
+                    ImageIO.write(ImageProcessor.fromFXImage(processedImage), "png", outputFile);
+
+                    updateProgress(i + 1, total);
+                    updateMessage("Processing image " + (i + 1) + " of " + total);
+                }
+                return null;
+            }
+        };
+
+        progressIndicator.progressProperty().bind(task.progressProperty());
+        progressLabel.textProperty().bind(task.messageProperty());
+
+        task.setOnSucceeded(e -> {
+            progressStage.close();
+            showAlert("Success", "Batch processing completed successfully.", Alert.AlertType.INFORMATION);
+        });
+
+        task.setOnFailed(e -> {
+            progressStage.close();
+            showAlert("Error", "Batch processing failed: " + task.getException().getMessage(), Alert.AlertType.ERROR);
+        });
+
+        new Thread(task).start();
+    }
+
+    private void showAlert(String title, String content, Alert.AlertType alertType) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 }

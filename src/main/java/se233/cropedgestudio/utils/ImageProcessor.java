@@ -94,4 +94,16 @@ public class ImageProcessor {
 
         return bufferedImage;
     }
+
+    public static Image applyRobertsCross(Image input, int strength) {
+        return detectEdges(input, "Roberts Cross", strength / 50.0 * 128);
+    }
+
+    public static Image applySobel(Image input) {
+        return detectEdges(input, "Sobel", 128);
+    }
+
+    public static Image applyLaplacian(Image input, int maskSize) {
+        return detectEdges(input, "Laplacian", 128);
+    }
 }
