@@ -12,38 +12,38 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" prefHeight="709.0" prefWidth="814.0" spacing="10" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="se233.cropedgestudio.controllers.CropController">
-   <Label alignment="TOP_CENTER" prefHeight="26.0" prefWidth="106.0" text="Crop">
-      <font>
-         <Font size="17.0" />
-      </font>
-      <opaqueInsets>
-         <Insets />
-      </opaqueInsets>
-      <VBox.margin>
-         <Insets bottom="8.0" />
-      </VBox.margin>
-   </Label>
-   <ScrollPane fx:id="imageScroll" pannable="true" prefHeight="342.0" prefWidth="814.0">
-      <content>
-         <BorderPane fx:id="imagePane" prefHeight="322.0" prefWidth="809.0">
-            <center>
-               <ImageView fx:id="imageView" fitHeight="298.0" fitWidth="376.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER" />
-            </center>
-            <opaqueInsets>
-               <Insets />
-            </opaqueInsets>
-         </BorderPane>
-      </content>
-   </ScrollPane>
+<VBox alignment="CENTER" prefHeight="600.0" prefWidth="800.0" spacing="10" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="se233.cropedgestudio.controllers.CropController">
+    <Label alignment="TOP_CENTER" prefHeight="26.0" prefWidth="106.0" text="Crop">
+        <font>
+            <Font size="17.0" />
+        </font>
+        <opaqueInsets>
+            <Insets />
+        </opaqueInsets>
+        <VBox.margin>
+            <Insets bottom="8.0" />
+        </VBox.margin>
+    </Label>
+    <ScrollPane fx:id="imageScroll" prefHeight="324.0" prefWidth="800.0">
+        <content>
+            <BorderPane fx:id="imagePane" prefWidth="797.0">
+                <center>
+                    <ImageView fx:id="imageView" fitHeight="298.0" fitWidth="376.0" pickOnBounds="true" preserveRatio="true" />
+                </center>
+                <opaqueInsets>
+                    <Insets />
+                </opaqueInsets>
+            </BorderPane>
+        </content>
+    </ScrollPane>
     <HBox alignment="CENTER" prefHeight="114.0" prefWidth="814.0" spacing="10">
-      <ListView fx:id="myListView" prefHeight="141.0" prefWidth="200.0" />
+        <ListView fx:id="myListView" prefHeight="141.0" prefWidth="200.0" />
     </HBox>
     <Pane prefHeight="141.0" prefWidth="814.0">
-        <Button fx:id="Select_Button" layoutX="331.0" layoutY="52.0" onAction="#handleSelectArea" text="Select Area" />
-        <Button fx:id="Crop_Button" layoutX="424.0" layoutY="52.0" onAction="#handleCrop" text="Crop" />
-        <Button fx:id="Save_Button" layoutX="424.0" layoutY="90.0" onAction="#handleSave" text="Save" />
-        <Button fx:id="Clear_Select_Button" layoutX="330.0" layoutY="90.0" mnemonicParsing="false" onAction="#handleClearSelect" text="Clear Select" />
+        <Button fx:id="Select_Button" layoutX="331.0" layoutY="40.0" onAction="#handleSelectArea" text="Select Area" />
+        <Button fx:id="Crop_Button" layoutX="424.0" layoutY="40.0" onAction="#handleCrop" text="Crop" />
+        <Button fx:id="Save_Button" layoutX="424.0" layoutY="66.0" onAction="#handleSave" text="Save" />
+        <Button fx:id="Clear_Select_Button" layoutX="330.0" layoutY="66.0" mnemonicParsing="false" onAction="#handleClearSelect" text="Clear Select" />
         <Button fx:id="Clear_Image_Button" layoutX="366.0" layoutY="2.0" mnemonicParsing="false" onAction="#handleClearImage" text="Clear Image" />
     </Pane>
 </VBox>

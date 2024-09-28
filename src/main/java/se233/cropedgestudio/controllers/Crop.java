@@ -45,26 +45,45 @@ public class Crop {
         imageScroll.setPannable(false);
         removeExistingSelection();
 
-        // Use the actual dimensions of the displayed image, considering scaling
-        double imageWidth = imageView.getBoundsInParent().getWidth();  // Adjusted to get the displayed bounds
-        double imageHeight = imageView.getBoundsInParent().getHeight(); // Adjusted to get the displayed bounds
+        Bounds viewportBounds = imageScroll.getViewportBounds();
 
-        // Ensure these dimensions match the imageView's actual displayed image
-        if (imageWidth == 0 || imageHeight == 0) {
-            imageWidth = imageView.getImage().getWidth();
-            imageHeight = imageView.getImage().getHeight();
-        }
+        double viewportWidth = viewportBounds.getWidth();
+        double viewportHeight = viewportBounds.getHeight();
 
+
+        double imageWidth = imageView.getBoundsInParent().getWidth();
+        double imageHeight = imageView.getBoundsInParent().getHeight();
+
+        // Set the size of the selection rectangle (e.g., 50% of the viewport size)
         double rectWidth = imageWidth / 2;
         double rectHeight = imageHeight / 2;
-        double rectX = (imageWidth - rectWidth) / 2;
-        double rectY = (imageHeight - rectHeight) / 2;
+
+        // Calculate the position to center the rectangle in the ScrollPane
+        double rectX = (viewportWidth - rectWidth) / 2;
+        double rectY = (viewportHeight - rectHeight) / 2;
+
+
+
+        // Use the actual dimensions of the displayed image, considering scaling
+//        double imageWidth = imageView.getBoundsInParent().getWidth();  // Adjusted to get the displayed bounds
+//        double imageHeight = imageView.getBoundsInParent().getHeight(); // Adjusted to get the displayed bounds
+//
+//        // Ensure these dimensions match the imageView's actual displayed image
+//        if (imageWidth == 0 || imageHeight == 0) {
+//            imageWidth = imageView.getImage().getWidth();
+//            imageHeight = imageView.getImage().getHeight();
+//        }
+//
+//        double rectWidth = imageWidth / 2;
+//        double rectHeight = imageHeight / 2;
+//        double rectX = (imageWidth - rectWidth) / 2;
+//        double rectY = (imageHeight - rectHeight) / 2;
 
         // Create the resizable rectangle using proper scaling
-        // selectionRectangle = new ResizableRectangle(rectX, rectY, rectWidth, rectHeight, imagePane, this::updateDarkArea);
-        selectionRectangle = new ResizableRectangle(rectX, rectY, rectWidth, rectHeight, imagePane);
+        selectionRectangle = new ResizableRectangle(rectX, rectY, rectWidth, rectHeight, imagePane, this::updateDarkArea);
+
         isAreaSelected = true;
-        // updateDarkArea();
+        updateDarkArea();
         imagePane.requestFocus();
     }
 
@@ -93,21 +112,56 @@ public class Crop {
         imageView.setImage(croppedImageWritable);
     }
 
+    private void updateDarkArea() {
+        if (selectionRectangle != null) {
+            // Get the viewport bounds of the ScrollPane
+            Bounds viewportBounds = imageScroll.getViewportBounds();  // Use imageScroll (ScrollPane)
+
+            double viewportWidth = viewportBounds.getWidth();
+            double viewportHeight = viewportBounds.getHeight();
+
+            // Get the position and size of the selection rectangle
+            double rectX = selectionRectangle.getX();
+            double rectY = selectionRectangle.getY();
+            double rectWidth = selectionRectangle.getWidth();
+            double rectHeight = selectionRectangle.getHeight();
+
+            // Set the darkArea to cover the entire viewport of the ScrollPane
+            darkArea.setWidth(viewportWidth);
+            darkArea.setHeight(viewportHeight);
+            darkArea.setLayoutX(0);  // Align with the top-left of the ScrollPane
+            darkArea.setLayoutY(0);  // Align with the top-left of the ScrollPane
+
+            // Define outer and inner rectangles
+            Rectangle outerRect = new Rectangle(0, 0, viewportWidth, viewportHeight);
+            Rectangle innerRect = new Rectangle(rectX, rectY, rectWidth, rectHeight);
+
+            // Create the clipped area where the dark area excludes the selection rectangle
+            Shape clippedArea = Shape.subtract(outerRect, innerRect);
+
+            // Set the clip on the dark area to highlight the selected area
+            darkArea.setClip(clippedArea);
+            darkArea.setVisible(true);
+        }
+    }
+
+
+
 //    private void updateDarkArea() {
-//        if (selectionRectangle != null) {
+//      if (selectionRectangle != null) {
 //            double imageWidth = imageView.getFitWidth();
 //            double imageHeight = imageView.getFitHeight();
 //            double rectX = selectionRectangle.getX();
 //            double rectY = selectionRectangle.getY();
-//            double rectWidth = selectionRectangle.getWidth();
-//            double rectHeight = selectionRectangle.getHeight();
+//           double rectWidth = selectionRectangle.getWidth();
+//           double rectHeight = selectionRectangle.getHeight();
 //
 //            darkArea.setWidth(imageWidth);
 //            darkArea.setHeight(imageHeight);
 //            darkArea.setLayoutX(0);
 //            darkArea.setLayoutY(0);
 //
-//            Rectangle outerRect = new Rectangle(0, 0, imageWidth, imageHeight);
+//           Rectangle outerRect = new Rectangle(0, 0, imageWidth, imageHeight);
 //            Rectangle innerRect = new Rectangle(rectX, rectY, rectWidth, rectHeight);
 //            Shape clippedArea = Shape.subtract(outerRect, innerRect);
 //

@@ -14,20 +14,20 @@ public class ResizableRectangle extends Rectangle {
 
     private static final int RESIZER_SQUARE_SIDE = 10;
     private Paint resizerSquareColor = Color.WHITE;
-    private Paint rectangleStrokeColor = Color.LIGHTGREEN;
+    private Paint rectangleStrokeColor = Color.BLACK;
     private double mouseClickPozX;
     private double mouseClickPozY;
 
 
     private final List<Rectangle> resizeHandles = new ArrayList<>();
     private Pane parentPane;
-    // private Runnable updateDarkAreaCallback;
+    private Runnable updateDarkAreaCallback;
 
-    // public ResizableRectangle(double x, double y, double width, double height, Pane pane, Runnable updateDarkAreaCallback)
-    public ResizableRectangle(double x, double y, double width, double height, Pane pane) {
+    public ResizableRectangle(double x, double y, double width, double height, Pane pane, Runnable updateDarkAreaCallback) {
+
         super(x, y, width, height);
         this.parentPane = pane;
-        //  this.updateDarkAreaCallback = updateDarkAreaCallback;
+        this.updateDarkAreaCallback = updateDarkAreaCallback;
         pane.getChildren().add(this);
         super.setStroke(rectangleStrokeColor);
         super.setStrokeWidth(2);
@@ -62,13 +62,13 @@ public class ResizableRectangle extends Rectangle {
             mouseClickPozY = event.getY();
 
 
-            //    updateDarkAreaCallback.run();
+            updateDarkAreaCallback.run();
         });
 
         this.setOnMouseReleased(event -> getParent().setCursor(Cursor.DEFAULT));
     }
 
-    // ฟังก์ชันเพื่อลบจุดควบคุมทั้งหมด
+
     public void removeResizeHandles(Pane pane) {
         for (Rectangle handle : resizeHandles) {
             pane.getChildren().remove(handle);
@@ -111,7 +111,7 @@ public class ResizableRectangle extends Rectangle {
                 setHeight(getHeight() - offsetY);
             }
 
-            //   updateDarkAreaCallback.run();
+            updateDarkAreaCallback.run();
         });
     }
 
@@ -136,7 +136,7 @@ public class ResizableRectangle extends Rectangle {
             }
 
 
-            //   updateDarkAreaCallback.run();
+            updateDarkAreaCallback.run();
         });
     }
 
@@ -166,7 +166,7 @@ public class ResizableRectangle extends Rectangle {
             }
 
 
-            //   updateDarkAreaCallback.run();
+            updateDarkAreaCallback.run();
         });
     }
 
@@ -191,7 +191,7 @@ public class ResizableRectangle extends Rectangle {
             }
 
 
-            //   updateDarkAreaCallback.run();
+            updateDarkAreaCallback.run();
         });
     }
 
@@ -220,7 +220,7 @@ public class ResizableRectangle extends Rectangle {
             }
 
 
-            //  updateDarkAreaCallback.run();
+            updateDarkAreaCallback.run();
         });
     }
 
@@ -243,7 +243,7 @@ public class ResizableRectangle extends Rectangle {
             }
 
 
-            //   updateDarkAreaCallback.run();
+            updateDarkAreaCallback.run();
         });
     }
 
@@ -274,7 +274,7 @@ public class ResizableRectangle extends Rectangle {
             }
 
 
-            //  updateDarkAreaCallback.run();
+            updateDarkAreaCallback.run();
         });
     }
 
@@ -301,7 +301,7 @@ public class ResizableRectangle extends Rectangle {
             }
 
 
-            // updateDarkAreaCallback.run();
+            updateDarkAreaCallback.run();
         });
     }
     private void makeNorthResizerSquare(Pane pane) {
@@ -322,7 +322,7 @@ public class ResizableRectangle extends Rectangle {
             }
 
 
-            // updateDarkAreaCallback.run();
+            updateDarkAreaCallback.run();
         });
     }
 
@@ -343,7 +343,7 @@ public class ResizableRectangle extends Rectangle {
             }
 
 
-            // updateDarkAreaCallback.run();
+            updateDarkAreaCallback.run();
         });
     }
 
@@ -364,7 +364,7 @@ public class ResizableRectangle extends Rectangle {
             }
 
 
-//updateDarkAreaCallback.run();
+            updateDarkAreaCallback.run();
         });
     }
 
@@ -386,13 +386,14 @@ public class ResizableRectangle extends Rectangle {
             }
 
 
-            //updateDarkAreaCallback.run();
+            updateDarkAreaCallback.run();
         });
     }
 
     private void prepareResizerSquare(Rectangle rect) {
         rect.setFill(resizerSquareColor);
 
-        rect.addEventHandler(MouseEvent.MOUSE_EXITED, event -> rect.getParent().setCursor(Cursor.DEFAULT));
+        rect.addEventHandler(MouseEvent.MOUSE_EXITED, event ->
+                rect.getParent().setCursor(Cursor.DEFAULT));
     }
 }
