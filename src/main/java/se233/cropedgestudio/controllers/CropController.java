@@ -56,8 +56,8 @@ public class CropController {
     }
 
     private void setupDragAndDrop() {
-        // Allow drag over only for valid image files
-        myListView.setOnDragOver(event -> {
+        //drag
+        myListView.setOnDragOver (event -> {
             Dragboard dragboard = event.getDragboard();
             if (dragboard.hasFiles()) {
                 File file = dragboard.getFiles().get(0);
@@ -68,7 +68,7 @@ public class CropController {
             event.consume();
         });
 
-        // Handle the drop event to accept the image file and add it to ListView
+        //  drop
         myListView.setOnDragDropped(event -> {
             Dragboard dragboard = event.getDragboard();
             boolean success = false;
@@ -79,7 +79,7 @@ public class CropController {
                     inputListView.add(file.getAbsolutePath());
                     myListView.getItems().add(file.getName());
                     // Optionally display the image immediately in ImageView
-                    imageView.setImage(new Image(file.toURI().toString()));
+                   // imageView.setImage(new Image(file.toURI().toString()));
                     success = true;
                 } else if (file.getName().toLowerCase().endsWith(".zip")) {
                     try {
@@ -115,6 +115,50 @@ public class CropController {
                     imageView.setImage(image);
                 }
             }
+        });
+
+        imageView.setOnDragOver (event -> {
+            Dragboard dragboard = event.getDragboard();
+            if (dragboard.hasFiles()) {
+                File file = dragboard.getFiles().get(0);
+                if (isImageFile(file) || file.getName().toLowerCase().endsWith(".zip")) {
+                    event.acceptTransferModes(TransferMode.COPY);  // Accept copy mode
+                }
+            }
+            event.consume();
+        });
+
+        //  drop
+        imageView.setOnDragDropped(event -> {
+            Dragboard dragboard = event.getDragboard();
+            boolean success = false;
+
+            if (dragboard.hasFiles()) {
+                File file = dragboard.getFiles().get(0);
+                if (isImageFile(file)) {
+                    inputListView.add(file.getAbsolutePath());
+                    myListView.getItems().add(file.getName());
+                    // Optionally display the image immediately in ImageView
+                    //imageView.setImage(new Image(file.toURI().toString()));
+                    success = true;
+                } else if (file.getName().toLowerCase().endsWith(".zip")) {
+                    try {
+                        List<File> extractedFiles = extractZipFile(file);
+                        for (File extractedFile : extractedFiles) {
+                            if (isImageFile(extractedFile)) {
+                                inputListView.add(extractedFile.getAbsolutePath());
+                                myListView.getItems().add(extractedFile.getName());
+                            }
+                        }
+                        success = true;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            event.setDropCompleted(success);
+            event.consume();
         });
 
 //        selectionRectangle = new Rectangle(0, 0, 0, 0);
@@ -176,19 +220,48 @@ public class CropController {
     }
 
     public void handleClearSelect() {
-        resetCropHandler();
-        cropHandler.removeExistingSelection();
-        selectionRectangle = null;
+        // Reset the crop handler to remove any existing selections
+        // Remove the selection rectangle and set it to null
+        if (selectionRectangle != null) {
+            imagePane.getChildren().remove(selectionRectangle);
+            selectionRectangle = null;
+        }
+        // Clear selection state
         cropHandler.isAreaSelected = false;
-        cropHandler.darkArea.setVisible(true);
+
+        // Hide the dark area (assuming darkArea is managed in cropHandler)
+        if (cropHandler.darkArea != null) {
+            cropHandler.darkArea.setVisible(false);
+        }
+        // Optional: Refocus or update UI elements as needed
+        imagePane.requestFocus();
+        resetCropHandler();
 
     }
 
+
+
+
+
+//    public void handleClearSelect() {
+//        resetCropHandler();
+//        cropHandler.removeExistingSelection();
+//        selectionRectangle = null;
+//        cropHandler.isAreaSelected = false;
+//
+//        cropHandler.isAreaSelected = false;
+//        cropHandler.darkArea.setVisible(false);
+//        cropHandler.darkArea.setClip(null);
+//    }
+
     public void handleClearImage(ActionEvent event) {
-        inputListView.clear();
-        currentIndex = 0;
-        myListView.setItems(null);
+        myListView.getItems().clear();
         imageView.setImage(null);
+
+        handleClearSelect();
+
+
+
     }
 
     @FXML
