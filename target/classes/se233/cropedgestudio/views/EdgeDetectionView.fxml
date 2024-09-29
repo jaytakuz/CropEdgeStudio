@@ -16,7 +16,7 @@
 
     <HBox spacing="20" alignment="CENTER">
         <Button text="Open Image" onAction="#handleOpenImage" />
-        <ComboBox fx:id="algorithmChoice" promptText="Select Algorithm" />
+        <ComboBox fx:id="algorithmChoice" promptText="Select Algorithm" onAction="#handleAlgorithmChange" />
     </HBox>
 
     <HBox spacing="20" alignment="CENTER">
@@ -30,12 +30,13 @@
         </VBox>
     </HBox>
 
-    <VBox spacing="10" alignment="CENTER">
-        <HBox spacing="10" alignment="CENTER">
+    <VBox fx:id="adjustmentBox" spacing="10" alignment="CENTER" visible="false" managed="false">
+        <HBox fx:id="robertsBox" spacing="10" alignment="CENTER" visible="false" managed="false">
             <Label text="Roberts Cross Strength:" />
-            <Slider fx:id="robertsStrengthSlider" min="1" max="100" value="50" showTickLabels="true" showTickMarks="true" />
+            <Slider fx:id="robertsStrengthSlider" min="0" max="100" value="50" showTickLabels="true" showTickMarks="true" />
+            <Label fx:id="robertsStrengthLabel" text="50" />
         </HBox>
-        <HBox spacing="20" alignment="CENTER">
+        <HBox fx:id="laplacianBox" spacing="20" alignment="CENTER" visible="false" managed="false">
             <Label text="Laplacian Mask Size:" />
             <RadioButton fx:id="radio3x3" text="3x3" selected="true">
                 <toggleGroup>

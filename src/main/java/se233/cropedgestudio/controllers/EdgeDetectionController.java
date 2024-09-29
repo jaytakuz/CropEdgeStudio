@@ -4,6 +4,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import se233.cropedgestudio.utils.ImageProcessor;
@@ -18,7 +20,11 @@ public class EdgeDetectionController {
     @FXML private ComboBox<String> algorithmChoice;
     @FXML private ImageView inputImageView;
     @FXML private ImageView outputImageView;
+    @FXML private VBox adjustmentBox;
+    @FXML private HBox robertsBox;
     @FXML private Slider robertsStrengthSlider;
+    @FXML private Label robertsStrengthLabel;
+    @FXML private HBox laplacianBox;
     @FXML private RadioButton radio3x3;
     @FXML private RadioButton radio5x5;
 
@@ -27,6 +33,38 @@ public class EdgeDetectionController {
     @FXML
     public void initialize() {
         algorithmChoice.getItems().addAll("Roberts Cross", "Sobel", "Laplacian");
+        robertsStrengthSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            robertsStrengthLabel.setText(String.format("%.0f", newVal.doubleValue()));
+        });
+    }
+
+    @FXML
+    private void handleAlgorithmChange() {
+        String selectedAlgorithm = algorithmChoice.getValue();
+        adjustmentBox.setVisible(true);
+        adjustmentBox.setManaged(true);
+
+        robertsBox.setVisible(false);
+        robertsBox.setManaged(false);
+        laplacianBox.setVisible(false);
+        laplacianBox.setManaged(false);
+
+        switch (selectedAlgorithm) {
+            case "Roberts Cross":
+                robertsBox.setVisible(true);
+                robertsBox.setManaged(true);
+                break;
+            case "Laplacian":
+                laplacianBox.setVisible(true);
+                laplacianBox.setManaged(true);
+                break;
+            case "Sobel":
+                // No adjustments for Sobel
+                break;
+            default:
+                adjustmentBox.setVisible(false);
+                adjustmentBox.setManaged(false);
+        }
     }
 
     @FXML
