@@ -4,6 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.shape.Rectangle?>
 
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
@@ -15,14 +16,18 @@
     </padding>
 
     <HBox spacing="20" alignment="CENTER">
-        <Button text="Open Image" onAction="#handleOpenImage" />
+        <Button text="Upload Image" onAction="#handleUploadImage" />
         <ComboBox fx:id="algorithmChoice" promptText="Select Algorithm" onAction="#handleAlgorithmChange" />
     </HBox>
 
     <HBox spacing="20" alignment="CENTER">
         <VBox alignment="CENTER" spacing="10">
             <Label text="Input Image" />
-            <ImageView fx:id="inputImageView" fitWidth="300" fitHeight="300" preserveRatio="true" />
+            <StackPane fx:id="inputImageStack" style="-fx-border-color: #cccccc; -fx-border-width: 2; -fx-border-style: dashed;">
+                <Rectangle width="300" height="300" fill="transparent" />
+                <ImageView fx:id="inputImageView" fitWidth="300" fitHeight="300" preserveRatio="true" />
+                <Label fx:id="dragDropLabel" text="Drag and drop image here" visible="true" />
+            </StackPane>
         </VBox>
         <VBox alignment="CENTER" spacing="10">
             <Label text="Output Image" />
@@ -47,7 +52,15 @@
         </HBox>
     </VBox>
 
-    <Button text="Apply Edge Detection" onAction="#applyEdgeDetection" />
+    <HBox spacing="10" alignment="CENTER">
+        <Button text="Apply Edge Detection" onAction="#applyEdgeDetection" />
+        <Button fx:id="previousButton" text="Previous" onAction="#handlePrevious" />
+        <Button fx:id="nextButton" text="Next" onAction="#handleNext" />
+        <Button text="Clear" onAction="#handleClear" />
+        <Button text="Save" onAction="#handleSave" />
+        <Button text="Batch Process" onAction="#handleBatchProcessing" />
+    </HBox>
 
-    <Button text="Batch Process" onAction="#handleBatchProcessing" />
+    <Label fx:id="statusLabel" text="Status: Ready" />
+
 </VBox>
