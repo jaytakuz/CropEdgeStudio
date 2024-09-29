@@ -1,6 +1,8 @@
 package se233.cropedgestudio.controllers;
 
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -16,12 +18,16 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.Label;
+import javafx.geometry.Insets;
 
 public class EdgeDetectionController {
 
@@ -284,59 +290,88 @@ public class EdgeDetectionController {
 
     @FXML
     private void handleBatchProcessing() {
-        if (algorithmChoice.getValue() == null) {
-            showAlert("Error", "Please select an algorithm first.", Alert.AlertType.WARNING);
+        if (imagesList.isEmpty()) {
+            showAlert("Error", "No images to process. Please load images first.", Alert.AlertType.WARNING);
             return;
         }
 
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")
-        );
-        List<File> selectedFiles = fileChooser.showOpenMultipleDialog(null);
+        String algorithm = algorithmChoice.getValue();
+        if (algorithm == null) {
+            showAlert("Error", "Please select an edge detection algorithm.", Alert.AlertType.WARNING);
+            return;
+        }
 
-        if (selectedFiles != null && !selectedFiles.isEmpty()) {
-            DirectoryChooser outputChooser = new DirectoryChooser();
-            outputChooser.setTitle("Select Output Directory");
-            File outputDir = outputChooser.showDialog(null);
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle("Select Output Directory");
+        File outputDir = directoryChooser.showDialog(null);
 
-            if (outputDir != null) {
-                processBatch(selectedFiles, outputDir);
-            }
+        if (outputDir != null) {
+            processBatch(outputDir, algorithm);
         }
     }
 
-    private void processBatch(List<File> files, File outputDir) {
-        String algorithm = algorithmChoice.getValue();
-        int strength = (int) robertsStrengthSlider.getValue();
-        int maskSize = radio5x5.isSelected() ? 5 : 3;
+    private void processBatch(File outputDir, String algorithm) {
+        Task<Void> batchTask = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                int total = imagesList.size();
+                for (int i = 0; i < total; i++) {
+                    Image originalImage = imagesList.get(i);
+                    Image processedImage;
 
-        for (File file : files) {
-            try {
-                Image image = new Image(file.toURI().toString());
-                Image processedImage;
+                    switch (algorithm) {
+                        case "Roberts Cross":
+                            int strength = (int) robertsStrengthSlider.getValue();
+                            processedImage = ImageProcessor.applyRobertsCross(originalImage, strength);
+                            break;
+                        case "Sobel":
+                            processedImage = ImageProcessor.applySobel(originalImage);
+                            break;
+                        case "Laplacian":
+                            int maskSize = radio5x5.isSelected() ? 5 : 3;
+                            processedImage = ImageProcessor.applyLaplacian(originalImage, maskSize);
+                            break;
+                        default:
+                            throw new IllegalArgumentException("Unknown algorithm: " + algorithm);
+                    }
 
-                switch (algorithm) {
-                    case "Roberts Cross":
-                        processedImage = ImageProcessor.applyRobertsCross(image, strength);
-                        break;
-                    case "Sobel":
-                        processedImage = ImageProcessor.applySobel(image);
-                        break;
-                    case "Laplacian":
-                        processedImage = ImageProcessor.applyLaplacian(image, maskSize);
-                        break;
-                    default:
-                        throw new IllegalArgumentException("Unknown algorithm: " + algorithm);
+                    File outputFile = new File(outputDir, "processed_image_" + (i + 1) + ".png");
+                    ImageIO.write(ImageProcessor.fromFXImage(processedImage), "png", outputFile);
+
+                    updateProgress(i + 1, total);
+                    updateMessage("Processed image " + (i + 1) + " of " + total);
                 }
-
-                File outputFile = new File(outputDir, "processed_" + file.getName());
-                ImageIO.write(ImageProcessor.fromFXImage(processedImage), "png", outputFile);
-            } catch (IOException e) {
-                showAlert("Error", "Failed to process " + file.getName() + ": " + e.getMessage(), Alert.AlertType.ERROR);
+                return null;
             }
-        }
-        showAlert("Success", "Batch processing completed.", Alert.AlertType.INFORMATION);
+        };
+
+        Stage progressStage = new Stage();
+        progressStage.setTitle("Batch Processing");
+
+        ProgressBar progressBar = new ProgressBar();
+        progressBar.progressProperty().bind(batchTask.progressProperty());
+
+        Label statusLabel = new Label();
+        statusLabel.textProperty().bind(batchTask.messageProperty());
+
+        VBox vbox = new VBox(10, new Label("Processing images..."), progressBar, statusLabel);
+        vbox.setAlignment(Pos.CENTER);
+        vbox.setPadding(new Insets(20));
+
+        progressStage.setScene(new Scene(vbox, 300, 150));
+        progressStage.show();
+
+        batchTask.setOnSucceeded(e -> {
+            progressStage.close();
+            showAlert("Success", "Batch processing completed. Images saved to " + outputDir.getAbsolutePath(), Alert.AlertType.INFORMATION);
+        });
+
+        batchTask.setOnFailed(e -> {
+            progressStage.close();
+            showAlert("Error", "Batch processing failed: " + batchTask.getException().getMessage(), Alert.AlertType.ERROR);
+        });
+
+        new Thread(batchTask).start();
     }
 
     @FXML
