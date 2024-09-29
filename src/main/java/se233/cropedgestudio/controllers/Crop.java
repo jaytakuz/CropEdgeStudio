@@ -3,6 +3,7 @@ package se233.cropedgestudio.controllers;
 import javafx.geometry.Bounds;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.SnapshotParameters;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
@@ -63,7 +64,6 @@ public class Crop {
         double rectY = (viewportHeight - rectHeight) / 2;
 
 
-
         // Use the actual dimensions of the displayed image, considering scaling
 //        double imageWidth = imageView.getBoundsInParent().getWidth();  // Adjusted to get the displayed bounds
 //        double imageHeight = imageView.getBoundsInParent().getHeight(); // Adjusted to get the displayed bounds
@@ -99,6 +99,7 @@ public class Crop {
             darkArea.setVisible(false);
             isCroppingActive = false;
         }
+
     }
 
     private void cropImage(Bounds bounds) {
@@ -146,7 +147,6 @@ public class Crop {
     }
 
 
-
 //    private void updateDarkArea() {
 //      if (selectionRectangle != null) {
 //            double imageWidth = imageView.getFitWidth();
@@ -178,5 +178,14 @@ public class Crop {
             selectionRectangle = null;  // Set to null to ensure fresh initialization
         }
         isAreaSelected = false;
+    }
+
+    private void showAlert(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+
     }
 }

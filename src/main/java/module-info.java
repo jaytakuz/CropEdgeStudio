@@ -3,6 +3,7 @@ module se233.cropedgestudio {
     requires javafx.fxml;
     requires javafx.graphics;
     requires java.desktop;
+    requires javafx.swing;
 
     opens se233.cropedgestudio to javafx.fxml;
     opens se233.cropedgestudio.controllers to javafx.fxml;

@@ -31,7 +31,7 @@ public class ResizableRectangle extends Rectangle {
         pane.getChildren().add(this);
         super.setStroke(rectangleStrokeColor);
         super.setStrokeWidth(2);
-        super.setFill(Color.color(1, 1, 1, 0));
+        super.setFill(Color.color(0, 0, 0, 0));
 
 
         makeResizerSquares(pane);

@@ -6,6 +6,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.control.ScrollPane;
+import javafx.embed.swing.SwingFXUtils;
 
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
@@ -15,6 +16,8 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -22,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -34,6 +38,7 @@ public class CropController {
 
     @FXML
     private ImageView imageView;
+
 
     @FXML
     private BorderPane imagePane;
@@ -61,8 +66,12 @@ public class CropController {
             Dragboard dragboard = event.getDragboard();
             if (dragboard.hasFiles()) {
                 File file = dragboard.getFiles().get(0);
-                if (isImageFile(file) || file.getName().toLowerCase().endsWith(".zip")) {
-                    event.acceptTransferModes(TransferMode.COPY);  // Accept copy mode
+                try {
+                    if (isImageFile(file) || file.getName().toLowerCase().endsWith(".zip")) {
+                        event.acceptTransferModes(TransferMode.COPY);  // Accept copy mode
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
             }
             event.consume();
@@ -75,25 +84,29 @@ public class CropController {
 
             if (dragboard.hasFiles()) {
                 File file = dragboard.getFiles().get(0);
-                if (isImageFile(file)) {
-                    inputListView.add(file.getAbsolutePath());
-                    myListView.getItems().add(file.getName());
-                    // Optionally display the image immediately in ImageView
-                   // imageView.setImage(new Image(file.toURI().toString()));
-                    success = true;
-                } else if (file.getName().toLowerCase().endsWith(".zip")) {
-                    try {
-                        List<File> extractedFiles = extractZipFile(file);
-                        for (File extractedFile : extractedFiles) {
-                            if (isImageFile(extractedFile)) {
-                                inputListView.add(extractedFile.getAbsolutePath());
-                                myListView.getItems().add(extractedFile.getName());
-                            }
-                        }
+                try {
+                    if (isImageFile(file)) {
+                        inputListView.add(file.getAbsolutePath());
+                        myListView.getItems().add(file.getName());
+                        // Optionally display the image immediately in ImageView
+                       // imageView.setImage(new Image(file.toURI().toString()));
                         success = true;
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    } else if (file.getName().toLowerCase().endsWith(".zip")) {
+                        try {
+                            List<File> extractedFiles = extractZipFile(file);
+                            for (File extractedFile : extractedFiles) {
+                                if (isImageFile(extractedFile)) {
+                                    inputListView.add(extractedFile.getAbsolutePath());
+                                    myListView.getItems().add(extractedFile.getName());
+                                }
+                            }
+                            success = true;
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
             }
 
@@ -121,8 +134,12 @@ public class CropController {
             Dragboard dragboard = event.getDragboard();
             if (dragboard.hasFiles()) {
                 File file = dragboard.getFiles().get(0);
-                if (isImageFile(file) || file.getName().toLowerCase().endsWith(".zip")) {
-                    event.acceptTransferModes(TransferMode.COPY);  // Accept copy mode
+                try {
+                    if (isImageFile(file) || file.getName().toLowerCase().endsWith(".zip")) {
+                        event.acceptTransferModes(TransferMode.COPY);  // Accept copy mode
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
             }
             event.consume();
@@ -135,25 +152,29 @@ public class CropController {
 
             if (dragboard.hasFiles()) {
                 File file = dragboard.getFiles().get(0);
-                if (isImageFile(file)) {
-                    inputListView.add(file.getAbsolutePath());
-                    myListView.getItems().add(file.getName());
-                    // Optionally display the image immediately in ImageView
-                    //imageView.setImage(new Image(file.toURI().toString()));
-                    success = true;
-                } else if (file.getName().toLowerCase().endsWith(".zip")) {
-                    try {
-                        List<File> extractedFiles = extractZipFile(file);
-                        for (File extractedFile : extractedFiles) {
-                            if (isImageFile(extractedFile)) {
-                                inputListView.add(extractedFile.getAbsolutePath());
-                                myListView.getItems().add(extractedFile.getName());
-                            }
-                        }
+                try {
+                    if (isImageFile(file)) {
+                        inputListView.add(file.getAbsolutePath());
+                        myListView.getItems().add(file.getName());
+                        // Optionally display the image immediately in ImageView
+                        //imageView.setImage(new Image(file.toURI().toString()));
                         success = true;
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    } else if (file.getName().toLowerCase().endsWith(".zip")) {
+                        try {
+                            List<File> extractedFiles = extractZipFile(file);
+                            for (File extractedFile : extractedFiles) {
+                                if (isImageFile(extractedFile)) {
+                                    inputListView.add(extractedFile.getAbsolutePath());
+                                    myListView.getItems().add(extractedFile.getName());
+                                }
+                            }
+                            success = true;
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
             }
 
@@ -199,13 +220,14 @@ public class CropController {
         return extractedFiles;
     }
 
-    private boolean isImageFile(File file) {
+    private boolean isImageFile(File file) throws IOException {
         String fileName = file.getName().toLowerCase(); // Make case-insensitive
         return fileName.endsWith(".png") || fileName.endsWith(".jpg") || fileName.endsWith(".jpeg");
     }
 
+
+    @FXML
     private void resetCropHandler() {
-        // Reset CropHandler and ensure it is properly initialized
         if (cropHandler != null) {
             cropHandler.removeExistingSelection();
             cropHandler = new Crop(imageView, imagePane, imageScroll);
@@ -216,50 +238,40 @@ public class CropController {
     public void handleSelectArea() {
         if (imageView.getImage() != null) {
             cropHandler.startCrop();
+        } else if (imageView.getImage() == null || myListView.getSelectionModel().getSelectedItem() == null){
+            showInformation("No Image" , "Please drop or select image");
         }
     }
-
+    @FXML
     public void handleClearSelect() {
-        // Reset the crop handler to remove any existing selections
-        // Remove the selection rectangle and set it to null
+
         if (selectionRectangle != null) {
             imagePane.getChildren().remove(selectionRectangle);
             selectionRectangle = null;
         }
-        // Clear selection state
         cropHandler.isAreaSelected = false;
 
-        // Hide the dark area (assuming darkArea is managed in cropHandler)
         if (cropHandler.darkArea != null) {
             cropHandler.darkArea.setVisible(false);
         }
-        // Optional: Refocus or update UI elements as needed
+
+
         imagePane.requestFocus();
         resetCropHandler();
-
+  if (cropHandler.darkArea == null) {
+            showInformation("No select area" , "Please select area");
+        }
     }
 
-
-
-
-
-//    public void handleClearSelect() {
-//        resetCropHandler();
-//        cropHandler.removeExistingSelection();
-//        selectionRectangle = null;
-//        cropHandler.isAreaSelected = false;
-//
-//        cropHandler.isAreaSelected = false;
-//        cropHandler.darkArea.setVisible(false);
-//        cropHandler.darkArea.setClip(null);
-//    }
-
+    @FXML
     public void handleClearImage(ActionEvent event) {
-        myListView.getItems().clear();
-        imageView.setImage(null);
-
-        handleClearSelect();
-
+        if (imageView.getImage() != null && myListView.getSelectionModel().getSelectedItem() != null) {
+            myListView.getItems().clear();
+            imageView.setImage(null);
+            handleClearSelect();
+        } else {
+            showInformation("No Image" , "Please drop or select image");
+        }
 
 
     }
@@ -270,6 +282,8 @@ public class CropController {
         if (imageView.getImage() != null && cropHandler != null) {
             cropHandler.confirmCrop();
             cropConfirmed = true;
+        } else if (!cropConfirmed && cropHandler == null){
+            showInformation("Crop Error" , "Please select area ");
         }
     }
 
@@ -278,9 +292,42 @@ public class CropController {
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Image");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG Image", "*.png"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Save as png", "*.png"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Save as jpg", "*.jpg"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Save as jpeg", "*.jpeg"));
         File file = fileChooser.showSaveDialog(imageView.getScene().getWindow());
 
+        if (file != null) {
+            try {
+                BufferedImage bufferedImage = SwingFXUtils.fromFXImage(imageView.getImage(), null);
+                ImageIO.write(bufferedImage, "png", file);
+                ImageIO.write(bufferedImage, "jpg", file);
+                ImageIO.write(bufferedImage, "jpeg", file);
+            } catch (IOException e) {
+
+                e.printStackTrace();
+            }
+        } else {
+            showInformation("File not save yet" , "You have canceled the save file");
+        }
+    }
+
+    private void showInformation(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+
+    }
+
+
+    private void showAlert(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
 
     }
 
