@@ -75,6 +75,7 @@ public class EdgeDetectionController {
         imagesList.clear();
         inputImageView.setImage(null);
         outputImageView.setImage(null);
+        dragDropLabel.setVisible(true);
         currentIndex = 0;
         updateNavigationButtons();
         setStatus("All images cleared");
@@ -82,9 +83,16 @@ public class EdgeDetectionController {
 
     private void displayCurrentImage() {
         if (!imagesList.isEmpty()) {
-            inputImageView.setImage(imagesList.get(currentIndex));
+            Image currentImage = imagesList.get(currentIndex);
+            inputImageView.setImage(currentImage);
             outputImageView.setImage(null);
+            dragDropLabel.setVisible(false);
             setStatus("Showing image " + (currentIndex + 1) + " of " + imagesList.size());
+        } else {
+            inputImageView.setImage(null);
+            outputImageView.setImage(null);
+            dragDropLabel.setVisible(true);
+            setStatus("No images loaded");
         }
         updateNavigationButtons();
     }
@@ -181,14 +189,12 @@ public class EdgeDetectionController {
     }
 
     private void processZipFile(File zipFile) {
-        Set<String> processedNames = new HashSet<>();
         try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile))) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
-                String entryName = entry.getName();
-                if (!entry.isDirectory() && isImageFile(entryName) && !processedNames.contains(entryName)) {
-                    processedNames.add(entryName);
-                    File tempFile = File.createTempFile("temp", "." + getFileExtension(entryName));
+                if (!entry.isDirectory() && isImageFile(entry.getName())) {
+                    // Create a temporary file for each image in the zip
+                    File tempFile = File.createTempFile("temp", "." + getFileExtension(entry.getName()));
                     tempFile.deleteOnExit();
 
                     try (FileOutputStream fos = new FileOutputStream(tempFile)) {
@@ -199,7 +205,10 @@ public class EdgeDetectionController {
                         }
                     }
 
-                    loadImage(tempFile);
+                    Image image = new Image(tempFile.toURI().toString());
+                    if (image.getWidth() > 0 && image.getHeight() > 0) {
+                        imagesList.add(image);
+                    }
                 }
                 zis.closeEntry();
             }
@@ -207,8 +216,7 @@ public class EdgeDetectionController {
                 currentIndex = 0;
                 displayCurrentImage();
             }
-
-            setStatus("ZIP file processed successfully. Loaded " + processedNames.size() + " images.");
+            setStatus("ZIP file processed successfully. Loaded " + imagesList.size() + " images.");
         } catch (IOException e) {
             showAlert("Error", "Failed to process ZIP file: " + e.getMessage(), Alert.AlertType.ERROR);
         }
