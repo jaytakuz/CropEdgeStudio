@@ -13,6 +13,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 
 
@@ -25,6 +26,8 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -182,15 +185,6 @@ public class CropController {
             event.consume();
         });
 
-//        selectionRectangle = new Rectangle(0, 0, 0, 0);
-//        selectionRectangle.setFill(Color.TRANSPARENT);
-//        selectionRectangle.setStroke(Color.GREEN);
-//        ((Pane) imageView.getParent()).getChildren().add(selectionRectangle);
-
-        // Mouse events for cropping
-//        imageView.setOnMousePressed(this::startSelection);
-//        imageView.setOnMouseDragged(this::updateSelection);
-//        imageView.setOnMouseReleased(this::completeSelection);
 
     }
 
@@ -288,6 +282,124 @@ public class CropController {
     }
 
     @FXML
+    public void handleBatchProcess(ActionEvent event) {
+        if (inputListView.isEmpty()) {
+            showInformation("No Images", "Please add images to the list first.");
+            return;
+        }
+
+        // Directory chooser for output
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle("Select Output Directory");
+        File outputDir = directoryChooser.showDialog(imageView.getScene().getWindow());
+
+        if (outputDir == null) {
+            showInformation("No Directory", "Please select an output directory.");
+            return;
+        }
+
+        // Start processing the first image in the list
+        //processNextImage(0, outputDir);
+
+        // Configure cropping for all images
+        configureCroppingForAllImages(outputDir);
+    }
+
+    private void configureCroppingForAllImages(File outputDir) {
+        configureNextImage(0, outputDir, new ArrayList<>());
+    }
+
+    private void configureNextImage(int currentIndex, File outputDir, List<Image> croppedImages) {
+        if (currentIndex >= inputListView.size()) {
+            // After all images are configured, start concurrent processing
+            startConcurrentProcessing(croppedImages, outputDir);
+            return;
+        }
+
+        // Load the current image
+        String filePath = inputListView.get(currentIndex);
+        File file = new File(filePath);
+
+        try {
+            if (isImageFile(file)) {
+                // Load the image into the ImageView
+                Image image = new Image(file.toURI().toString());
+                imageView.setImage(image);
+
+                // Start cropping for this image
+                cropHandler.startCrop();
+
+                // Wait for user to confirm cropping
+                cropHandler.setOnCropConfirmed(() -> {
+                    // Store cropped image
+                    croppedImages.add(imageView.getImage());
+
+                    // Proceed to configure the next image
+                    configureNextImage(currentIndex + 1, outputDir, croppedImages);
+                });
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void startConcurrentProcessing(List<Image> croppedImages, File outputDir) {
+        ExecutorService executorService = Executors.newFixedThreadPool(4);  // Adjust thread count as needed
+
+        List<Runnable> tasks = new ArrayList<>();
+
+        for (int i = 0; i < croppedImages.size(); i++) {
+            Image image = croppedImages.get(i);
+            String fileName = new File(inputListView.get(i)).getName();
+
+            tasks.add(() -> {
+                try {
+                    // Apply edge detection
+                    Image processedImage = detectEdges(image);
+
+                    // Save the processed image
+                    saveProcessedImage(processedImage, outputDir, fileName);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    showAlert("Error", "Failed to save processed image: " + fileName);
+                }
+            });
+        }
+
+        // Submit all tasks to the executor
+        for (Runnable task : tasks) {
+            executorService.submit(task);
+        }
+
+        // Shutdown the executor once all tasks are submitted
+        executorService.shutdown();
+
+        showInformation("Batch Processing Complete", "All images have been processed and saved.");
+    }
+
+
+
+    private Image detectEdges(Image croppedImage) {
+        // TODO: Apply edge detection logic here (use OpenCV or custom algorithm)
+        // For now, just return the cropped image as a placeholder
+        return croppedImage;
+    }
+
+    // Save the processed image
+    private void saveProcessedImage(Image image, File outputDir, String originalFileName) throws IOException {
+        // Prepare the output file path
+        String outputFileName = originalFileName.substring(0, originalFileName.lastIndexOf('.')) + "_processed.png";
+        File outputFile = new File(outputDir, outputFileName);
+
+        // Convert Image to BufferedImage
+        BufferedImage bufferedImage = SwingFXUtils.fromFXImage(image, null);
+
+        // Save the buffered image as a file (you can choose the format, e.g., PNG)
+        ImageIO.write(bufferedImage, "png", outputFile);
+    }
+
+
+    @FXML
     private void handleSave() {
 
         FileChooser fileChooser = new FileChooser();
@@ -330,6 +442,7 @@ public class CropController {
         alert.showAndWait();
 
     }
+
 
 
 

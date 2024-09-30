@@ -19,10 +19,12 @@ public class Crop {
     private final ImageView imageView;
     private final BorderPane imagePane;
     private final ScrollPane imageScroll;
+    private Runnable onCropConfirmed;
     private ResizableRectangle selectionRectangle;
     Rectangle darkArea;
     boolean isAreaSelected = false;
     private boolean isCroppingActive = false;
+
 
 
     public Crop(ImageView imageView, BorderPane imagePane, ScrollPane imageScroll) {
@@ -64,20 +66,6 @@ public class Crop {
         double rectY = (viewportHeight - rectHeight) / 2;
 
 
-        // Use the actual dimensions of the displayed image, considering scaling
-//        double imageWidth = imageView.getBoundsInParent().getWidth();  // Adjusted to get the displayed bounds
-//        double imageHeight = imageView.getBoundsInParent().getHeight(); // Adjusted to get the displayed bounds
-//
-//        // Ensure these dimensions match the imageView's actual displayed image
-//        if (imageWidth == 0 || imageHeight == 0) {
-//            imageWidth = imageView.getImage().getWidth();
-//            imageHeight = imageView.getImage().getHeight();
-//        }
-//
-//        double rectWidth = imageWidth / 2;
-//        double rectHeight = imageHeight / 2;
-//        double rectX = (imageWidth - rectWidth) / 2;
-//        double rectY = (imageHeight - rectHeight) / 2;
 
         // Create the resizable rectangle using proper scaling
         selectionRectangle = new ResizableRectangle(rectX, rectY, rectWidth, rectHeight, imagePane, this::updateDarkArea);
@@ -99,7 +87,13 @@ public class Crop {
             darkArea.setVisible(false);
             isCroppingActive = false;
         }
+        if (onCropConfirmed != null) {
+            onCropConfirmed.run();
+        }
 
+    }
+    public void setOnCropConfirmed(Runnable onCropConfirmed) {
+        this.onCropConfirmed = onCropConfirmed;
     }
 
     private void cropImage(Bounds bounds) {
@@ -147,29 +141,6 @@ public class Crop {
     }
 
 
-//    private void updateDarkArea() {
-//      if (selectionRectangle != null) {
-//            double imageWidth = imageView.getFitWidth();
-//            double imageHeight = imageView.getFitHeight();
-//            double rectX = selectionRectangle.getX();
-//            double rectY = selectionRectangle.getY();
-//           double rectWidth = selectionRectangle.getWidth();
-//           double rectHeight = selectionRectangle.getHeight();
-//
-//            darkArea.setWidth(imageWidth);
-//            darkArea.setHeight(imageHeight);
-//            darkArea.setLayoutX(0);
-//            darkArea.setLayoutY(0);
-//
-//           Rectangle outerRect = new Rectangle(0, 0, imageWidth, imageHeight);
-//            Rectangle innerRect = new Rectangle(rectX, rectY, rectWidth, rectHeight);
-//            Shape clippedArea = Shape.subtract(outerRect, innerRect);
-//
-//            darkArea.setClip(clippedArea);
-//            darkArea.setVisible(true);
-//        }
-//    }
-
     void removeExistingSelection() {
         // Remove the existing selection rectangle if it exists
         if (selectionRectangle != null) {
@@ -180,12 +151,5 @@ public class Crop {
         isAreaSelected = false;
     }
 
-    private void showAlert(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
 
-    }
 }

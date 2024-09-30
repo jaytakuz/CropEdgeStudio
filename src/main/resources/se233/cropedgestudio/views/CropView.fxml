@@ -4,25 +4,13 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
 
 <VBox alignment="CENTER" prefHeight="600.0" prefWidth="800.0" spacing="10" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="se233.cropedgestudio.controllers.CropController">
-    <Label alignment="TOP_CENTER" prefHeight="26.0" prefWidth="106.0" text="Crop">
-        <font>
-            <Font size="17.0" />
-        </font>
-        <opaqueInsets>
-            <Insets />
-        </opaqueInsets>
-        <VBox.margin>
-            <Insets bottom="8.0" />
-        </VBox.margin>
-    </Label>
     <ScrollPane fx:id="imageScroll" prefHeight="324.0" prefWidth="800.0">
         <content>
-            <BorderPane fx:id="imagePane" prefWidth="797.0">
+            <BorderPane fx:id="imagePane" prefHeight="320.0" prefWidth="797.0">
                 <center>
-                    <ImageView fx:id="imageView" fitHeight="298.0" fitWidth="376.0" pickOnBounds="true" preserveRatio="true" />
+                    <ImageView fx:id="imageView" fitHeight="289.0" fitWidth="376.0" pickOnBounds="true" preserveRatio="true" />
                 </center>
                 <opaqueInsets>
                     <Insets />
@@ -34,11 +22,12 @@
         <ListView fx:id="myListView" prefHeight="141.0" prefWidth="200.0" />
     </HBox>
     <Pane prefHeight="141.0" prefWidth="814.0">
-        <Button fx:id="Select_Button" layoutX="291.0" layoutY="20.0" mnemonicParsing="false" onAction="#handleSelectArea" text="Select Area" />
-        <Button fx:id="Crop_Button" layoutX="378.0" layoutY="20.0" mnemonicParsing="false" onAction="#handleCrop" text="Crop" />
-        <Button fx:id="Save_Button" layoutX="379.0" layoutY="57.0" mnemonicParsing="false" onAction="#handleSave" text="Save" />
-        <Button fx:id="Clear_Select_Button" layoutX="291.0" layoutY="57.0" mnemonicParsing="false" onAction="#handleClearSelect" text="Clear Select" />
-        <Button fx:id="Clear_Image_Button" layoutX="430.0" layoutY="20.0" mnemonicParsing="false" onAction="#handleClearImage" text="Clear Image" />
+        <Button fx:id="Select_Button" layoutX="235.0" layoutY="33.0" mnemonicParsing="false" onAction="#handleSelectArea" text="Select Area" />
+        <Button fx:id="Crop_Button" layoutX="379.0" layoutY="33.0" mnemonicParsing="false" onAction="#handleCrop" text="Crop" />
+        <Button fx:id="Save_Button" layoutX="380.0" layoutY="83.0" mnemonicParsing="false" onAction="#handleSave" text="Save" />
+        <Button fx:id="Clear_Select_Button" layoutX="234.0" layoutY="83.0" mnemonicParsing="false" onAction="#handleClearSelect" text="Clear Select" />
+        <Button fx:id="Clear_Image_Button" layoutX="497.0" layoutY="33.0" mnemonicParsing="false" onAction="#handleClearImage" text="Clear Image" />
       <Label layoutX="364.0" layoutY="-8.0" text="Drop file here" textAlignment="CENTER" />
+      <Button fx:id="Batch_Button" layoutX="493.0" layoutY="83.0" mnemonicParsing="false" onAction="#handleBatchProcess" text="Batch Process" />
     </Pane>
 </VBox>
