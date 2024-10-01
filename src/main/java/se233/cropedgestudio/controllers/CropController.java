@@ -55,6 +55,7 @@ public class CropController {
     private int currentIndex = 0;
     private volatile boolean cropConfirmed;
     private Rectangle selectionRectangle;
+    private ExecutorService batchExecutorService;
 
     @FXML
     private void initialize() {
@@ -92,7 +93,7 @@ public class CropController {
                         inputListView.add(file.getAbsolutePath());
                         myListView.getItems().add(file.getName());
                         // Optionally display the image immediately in ImageView
-                       // imageView.setImage(new Image(file.toURI().toString()));
+                       imageView.setImage(new Image(file.toURI().toString()));
                         success = true;
                     } else if (file.getName().toLowerCase().endsWith(".zip")) {
                         try {
@@ -160,7 +161,7 @@ public class CropController {
                         inputListView.add(file.getAbsolutePath());
                         myListView.getItems().add(file.getName());
                         // Optionally display the image immediately in ImageView
-                        //imageView.setImage(new Image(file.toURI().toString()));
+                        imageView.setImage(new Image(file.toURI().toString()));
                         success = true;
                     } else if (file.getName().toLowerCase().endsWith(".zip")) {
                         try {
@@ -259,13 +260,29 @@ public class CropController {
 
     @FXML
     public void handleClearImage(ActionEvent event) {
-        if (imageView.getImage() != null && myListView.getSelectionModel().getSelectedItem() != null) {
-            myListView.getItems().clear();
-            imageView.setImage(null);
-            handleClearSelect();
-        } else {
-            showInformation("No Image" , "Please drop or select image");
+        if (batchExecutorService != null && !batchExecutorService.isShutdown()) {
+            batchExecutorService.shutdownNow(); // Stop all running tasks immediately
+            batchExecutorService = null;        // Reset the executor for future use
         }
+
+        // 2. Clear the list of images and selections
+        if (!inputListView.isEmpty()) {
+            inputListView.clear();
+        }
+
+        if (!myListView.getItems().isEmpty()) {
+            myListView.getItems().clear();
+        }
+
+        // 3. Clear the ImageView
+        if (imageView.getImage() != null) {
+            imageView.setImage(null);
+        }
+
+        // 4. Clear any cropping selections
+        handleClearSelect();
+
+        showInformation("Images Cleared", "All images and batch processes have been cleared.");
 
 
     }

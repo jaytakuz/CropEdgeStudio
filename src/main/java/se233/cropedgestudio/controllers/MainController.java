@@ -1,16 +1,13 @@
 package se233.cropedgestudio.controllers;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.control.Alert;
 import javafx.scene.control.MenuItem;
-import javafx.scene.layout.StackPane;
-import se233.cropedgestudio.components.DragAndDropPane;
-import se233.cropedgestudio.utils.BatchProcessor;
-
-import java.io.File;
+import javafx.scene.layout.VBox;
 import java.io.IOException;
-import java.util.List;
 
 public class MainController {
 
@@ -21,51 +18,48 @@ public class MainController {
     private MenuItem cropMenuItem;
 
     @FXML
-    private StackPane contentArea;
-
-    private DragAndDropPane dragAndDropPane;
-
-    @FXML
-    public void initialize() {
-        dragAndDropPane = new DragAndDropPane(this::handleDroppedFiles);
-        contentArea.getChildren().add(dragAndDropPane);
-    }
+    private VBox root;
 
     @FXML
     private void handleDetectEdge() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/se233/cropedgestudio/views/EdgeDetectionView.fxml"));
-            Parent edgeDetectionView = loader.load();
-            contentArea.getChildren().setAll(edgeDetectionView);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        loadView("/se233/cropedgestudio/views/EdgeDetectionView.fxml");
     }
 
     @FXML
     private void handleCrop() {
+        loadView("/se233/cropedgestudio/views/CropView.fxml");
+    }
+
+    @FXML
+    private void handleExit() {
+        Platform.exit();
+    }
+
+    @FXML
+    private void handleAbout() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("About CropEdge Studio");
+        alert.setHeaderText(null);
+        alert.setContentText("CropEdge Studio v1.0\n\nDeveloped by:\nPongpiphat Kalasuk\nWatcharapong Wanna");
+        alert.showAndWait();
+    }
+
+    private void loadView(String fxmlPath) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/se233/cropedgestudio/views/CropView.fxml"));
-            Parent cropView = loader.load();
-            contentArea.getChildren().setAll(cropView);
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent view = loader.load();
+            root.getChildren().set(1, view);
         } catch (IOException e) {
             e.printStackTrace();
+            showErrorDialog("Failed to load view: " + e.getMessage());
         }
     }
 
-    private void handleDroppedFiles(List<File> files) {
-        try {
-            List<File> processedFiles = BatchProcessor.processFiles(files);
-            // TODO: Implement logic to handle processed files (e.g., show in a list, process immediately, etc.)
-            System.out.println("Processed " + processedFiles.size() + " files");
-        } catch (IOException e) {
-            e.printStackTrace();
-            // TODO: Show error dialog
-        }
-    }
-
-    private boolean isValidFile(File file) {
-        String name = file.getName().toLowerCase();
-        return name.endsWith(".jpg") || name.endsWith(".jpeg") || name.endsWith(".png") || name.endsWith(".zip");
+    private void showErrorDialog(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

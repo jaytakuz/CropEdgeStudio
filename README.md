@@ -10,7 +10,7 @@ It integrates multiple edge detection algorithms and a user-friendly cropping in
 
 Supports 3 powerful edge detection algorithms:
 
-- **Roberts Cross Edge Detection:** A fast and lightweight algorithm that calculates gradients in diagonal directions, making it suitable for real-time edge detection in small or simple images.
+- **Canny Edge Detection:** Optimal edge detection for precision and noise reduction.
 - **Sobel Edge Detection:** Fast and efficient detection of gradients in x and y directions.
 - **Laplacian Edge Detection:** Uses second derivatives for edge detection, capturing unique features.
 

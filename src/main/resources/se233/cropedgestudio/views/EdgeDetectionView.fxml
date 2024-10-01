@@ -3,32 +3,64 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.shape.Rectangle?>
 
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="se233.cropedgestudio.controllers.EdgeDetectionController"
-      spacing="10" alignment="CENTER">
+      spacing="20" alignment="CENTER">
 
-    <Button text="Open Image" onAction="#handleOpenImage" />
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
 
-    <HBox spacing="10" alignment="CENTER">
+    <HBox spacing="20" alignment="CENTER">
+        <Button text="Upload Image" onAction="#handleUploadImage" />
+        <ComboBox fx:id="algorithmChoice" promptText="Select Algorithm" onAction="#handleAlgorithmChange" />
+    </HBox>
+
+    <HBox spacing="20" alignment="CENTER">
         <VBox alignment="CENTER" spacing="10">
-            <Label text="Original Image" />
-            <ImageView fx:id="originalImageView" fitWidth="300" fitHeight="300" preserveRatio="true" />
+            <Label text="Input Image" />
+            <StackPane fx:id="inputImageStack" style="-fx-border-color: #cccccc; -fx-border-width: 2; -fx-border-style: dashed;">
+                <Rectangle width="300" height="300" fill="transparent" />
+                <ImageView fx:id="inputImageView" fitWidth="300" fitHeight="300" preserveRatio="true" />
+                <Label fx:id="dragDropLabel" text="Drag and drop image here" visible="true" />
+            </StackPane>
         </VBox>
         <VBox alignment="CENTER" spacing="10">
-            <Label text="Processed Image" />
-            <ImageView fx:id="processedImageView" fitWidth="300" fitHeight="300" preserveRatio="true" />
+            <Label text="Output Image" />
+            <ImageView fx:id="outputImageView" fitWidth="300" fitHeight="300" preserveRatio="true" />
         </VBox>
     </HBox>
 
+    <VBox fx:id="adjustmentBox" spacing="10" alignment="CENTER" visible="false" managed="false">
+        <HBox fx:id="robertsBox" spacing="10" alignment="CENTER" visible="false" managed="false">
+            <Label text="Roberts Cross Strength:" />
+            <Slider fx:id="robertsStrengthSlider" min="0" max="100" value="50" showTickLabels="true" showTickMarks="true" />
+            <Label fx:id="robertsStrengthLabel" text="50" />
+        </HBox>
+        <HBox fx:id="laplacianBox" spacing="20" alignment="CENTER" visible="false" managed="false">
+            <Label text="Laplacian Mask Size:" />
+            <RadioButton fx:id="radio3x3" text="3x3" selected="true">
+                <toggleGroup>
+                    <ToggleGroup fx:id="laplacianMaskSize" />
+                </toggleGroup>
+            </RadioButton>
+            <RadioButton fx:id="radio5x5" text="5x5" toggleGroup="$laplacianMaskSize" />
+        </HBox>
+    </VBox>
+
     <HBox spacing="10" alignment="CENTER">
-        <Label text="Edge Detection Algorithm:" />
-        <ComboBox fx:id="algorithmComboBox" />
+        <Button text="Apply Edge Detection" onAction="#applyEdgeDetection" />
+        <Button fx:id="previousButton" text="Previous" onAction="#handlePrevious" />
+        <Button fx:id="nextButton" text="Next" onAction="#handleNext" />
+        <Button text="Clear" onAction="#handleClear" />
+        <Button text="Save" onAction="#handleSave" />
+        <Button text="Batch Process" onAction="#handleBatchProcessing" />
     </HBox>
 
-    <VBox fx:id="parametersVBox" spacing="5" alignment="CENTER" />
+    <Label fx:id="statusLabel" text="Status: Ready" />
 
-    <Button text="Apply" onAction="#applyEdgeDetection" />
-    <Button text="Save" onAction="#handleSave" />
 </VBox>
