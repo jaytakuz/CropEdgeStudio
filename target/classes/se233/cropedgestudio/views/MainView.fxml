@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="se233.cropedgestudio.controllers.MainController"
+      fx:id="root"
+      prefHeight="600.0" prefWidth="800.0"
+      stylesheets="@../styles/application.css">
+    <MenuBar>
+        <Menu text="File">
+            <MenuItem text="Exit" onAction="#handleExit"/>
+        </Menu>
+        <Menu text="Features">
+            <MenuItem fx:id="detectEdgeMenuItem" text="Edge Detection" onAction="#handleDetectEdge"/>
+            <MenuItem fx:id="cropMenuItem" text="Crop" onAction="#handleCrop"/>
+        </Menu>
+        <Menu text="Help">
+            <MenuItem text="About" onAction="#handleAbout"/>
+        </Menu>
+    </MenuBar>
+    <VBox alignment="CENTER" spacing="20" styleClass="main-content">
+        <padding>
+            <Insets top="40" right="40" bottom="40" left="40"/>
+        </padding>
+        <Label text="CropEdge Studio" styleClass="title"/>
+        <Label text="Image Processing Made Simple" styleClass="subtitle"/>
+        <TextFlow textAlignment="CENTER" maxWidth="600">
+            <Text text="CropEdge Studio is an intuitive image processing tool designed to perform both edge detection and cropping on a variety of image formats. It integrates multiple edge detection algorithms and a user-friendly cropping interface to handle both individual and batch image processing." wrappingWidth="600"/>
+        </TextFlow>
+        <VBox alignment="CENTER" spacing="10" styleClass="feature-box">
+            <Label text="Key Features" styleClass="feature-title"/>
+            <HBox alignment="CENTER" spacing="20">
+                <VBox alignment="CENTER" styleClass="feature">
+                    <Label text="Edge Detection" styleClass="feature-subtitle"/>
+                    <Label text="Roberts Cross, Sobel, Laplacian" styleClass="feature-description"/>
+                </VBox>
+                <VBox alignment="CENTER" styleClass="feature">
+                    <Label text="Cropping" styleClass="feature-subtitle"/>
+                    <Label text="Interactive and Batch Processing" styleClass="feature-description"/>
+                </VBox>
+            </HBox>
+        </VBox>
+        <Label text="Select a feature from the menu to get started" styleClass="instruction"/>
+    </VBox>
+</VBox>

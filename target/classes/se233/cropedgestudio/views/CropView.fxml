@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="CENTER" prefHeight="600.0" prefWidth="800.0" spacing="10" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="se233.cropedgestudio.controllers.CropController">
+    <ScrollPane fx:id="imageScroll" prefHeight="397.0" prefWidth="800.0">
+        <content>
+            <BorderPane fx:id="imagePane" prefHeight="320.0" prefWidth="797.0">
+                <center>
+                    <ImageView fx:id="imageView" fitHeight="360.0" fitWidth="792.0" pickOnBounds="true" preserveRatio="true" />
+                </center>
+                <opaqueInsets>
+                    <Insets />
+                </opaqueInsets>
+            </BorderPane>
+        </content>
+    </ScrollPane>
+    <HBox alignment="CENTER" prefHeight="114.0" prefWidth="814.0" spacing="10">
+        <ListView fx:id="myListView" prefHeight="90.0" prefWidth="260.0" />
+    </HBox>
+    <Pane prefHeight="141.0" prefWidth="814.0">
+        <Button fx:id="Select_Button" layoutX="131.0" layoutY="34.0" mnemonicParsing="false" onAction="#handleSelectArea" text="Select Area" />
+        <Button fx:id="Crop_Button" layoutX="322.0" layoutY="34.0" mnemonicParsing="false" onAction="#handleCrop" text="Crop" />
+        <Button fx:id="Save_Button" layoutX="388.0" layoutY="34.0" mnemonicParsing="false" onAction="#handleSave" text="Save" />
+        <Button fx:id="Clear_Select_Button" layoutX="233.0" layoutY="34.0" mnemonicParsing="false" onAction="#handleClearSelect" text="Clear Select" />
+        <Button fx:id="Clear_Image_Button" layoutX="444.0" layoutY="34.0" mnemonicParsing="false" onAction="#handleClearImage" text="Clear Image" />
+      <Label layoutX="364.0" layoutY="-8.0" text="Drop file here" textAlignment="CENTER" />
+      <Button fx:id="Batch_Button" layoutX="534.0" layoutY="34.0" mnemonicParsing="false" onAction="#handleBatchProcess" text="Batch Process" />
+    </Pane>
+</VBox>
