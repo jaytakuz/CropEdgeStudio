@@ -7,7 +7,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.control.ScrollPane;
 import javafx.embed.swing.SwingFXUtils;
-
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
@@ -15,8 +14,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
-
-
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -28,13 +25,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 
 public class CropController {
-
 
     @FXML
     private ListView<String> myListView;
@@ -42,16 +37,14 @@ public class CropController {
     @FXML
     private ImageView imageView;
 
-
     @FXML
     private BorderPane imagePane;
 
     @FXML
     ScrollPane imageScroll;
+
     @FXML
     Label statusLabel;
-
-
 
     private Crop cropHandler;
     private List<String> inputListView = new ArrayList<String>();
@@ -64,7 +57,6 @@ public class CropController {
     private void initialize() {
         cropHandler = new Crop(imageView, imagePane, imageScroll);
         setupDragAndDrop();
-        // updateNavigationButtons();  // Initial update to disable navigation buttons if no images
     }
 
     private void setupDragAndDrop() {
@@ -77,7 +69,7 @@ public class CropController {
             event.consume();
         });
 
-        //  drop
+        //drop
         myListView.setOnDragDropped(event -> {
             boolean success = false;
             Dragboard dragboard = event.getDragboard();
@@ -118,7 +110,7 @@ public class CropController {
             event.consume();
         });
 
-        // Handle double-click on ListView to load the selected image
+        //double-click on ListView to load the selected image
         myListView.setOnMouseClicked((MouseEvent event) -> {
             if (event.getClickCount() == 2) { // Double-click
                 String selectedFileName = myListView.getSelectionModel().getSelectedItem();
@@ -142,7 +134,7 @@ public class CropController {
             event.consume();
         });
 
-        //  drop
+        //drop
         imageView.setOnDragDropped(event -> {
             boolean success = false;
             Dragboard dragboard = event.getDragboard();
@@ -178,12 +170,9 @@ public class CropController {
                     }
                 }
             }
-
             event.setDropCompleted(success);
             event.consume();
         });
-
-
     }
 
     private List<File> extractZipFile(File zipFile) throws IOException {
@@ -205,16 +194,14 @@ public class CropController {
                     Files.copy(zis, newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                     extractedFiles.add(newFile);
                 }
-
                 zis.closeEntry();
             }
         }
-
         return extractedFiles;
     }
 
     private boolean isImageFile(File file) throws IOException {
-        String fileName = file.getName().toLowerCase(); // Make case-insensitive
+        String fileName = file.getName().toLowerCase();
         return fileName.endsWith(".png") || fileName.endsWith(".jpg") || fileName.endsWith(".jpeg");
     }
 
@@ -240,7 +227,6 @@ public class CropController {
                         // Optionally display the image immediately in ImageView
                         imageView.setImage(new Image(selectedFile.toURI().toString()));
 
-
                     } else if (selectedFile.getName().toLowerCase().endsWith(".zip")) {
                         try {
                             List<File> extractedFiles = extractZipFile(selectedFile);
@@ -251,7 +237,6 @@ public class CropController {
                                     setStatus("ZIP file extracted successfully. Loaded " + inputListView.size() + " images.");
                                 }
                             }
-
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -259,18 +244,6 @@ public class CropController {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-
-        }
-
-    }
-
-
-
-    @FXML
-    private void resetCropHandler() {
-        if (cropHandler != null) {
-            cropHandler.removeExistingSelection();
-            cropHandler = new Crop(imageView, imagePane, imageScroll);
         }
     }
 
@@ -284,14 +257,13 @@ public class CropController {
             showInformation("No Image", "Please drop or select image");
         }
     }
+
     @FXML
     public void handleClearSelect() {
 
         if (!cropHandler.isAreaSelected) {
-
             setStatus("No select area, please select area");
             return;
-
         }
 
         if (selectionRectangle != null) {
@@ -310,20 +282,27 @@ public class CropController {
     }
 
     @FXML
-    public void handleClearImage(ActionEvent event) {
+    private void resetCropHandler() {
+        if (cropHandler != null) {
+            cropHandler.removeExistingSelection();
+            cropHandler = new Crop(imageView, imagePane, imageScroll);
+        }
+    }
+
+    @FXML
+    public void handleClearImage() {
         if (batchExecutorService == null && imageView.getImage() == null && myListView.getItems().isEmpty()) {
             showInformation("No Image to clear" , "Please upload or drag image");
             setStatus("No image, please upload or drag image");
-
             return;
         }
         handleClearSelect();
+
         if (batchExecutorService != null && !batchExecutorService.isShutdown()) {
-            batchExecutorService.shutdownNow(); // Stop all running tasks immediately
-            batchExecutorService = null;        // Reset the executor for future use
+            batchExecutorService.shutdownNow();
+            batchExecutorService = null;
         }
 
-        // 2. Clear the list of images and selections
         if (!inputListView.isEmpty()) {
             inputListView.clear();
         }
@@ -332,27 +311,21 @@ public class CropController {
             myListView.getItems().clear();
         }
 
-        // 3. Clear the ImageView
         if (imageView.getImage() != null) {
             imageView.setImage(null);
         }
 
-        // 4. Clear any cropping selections
-
-
         showInformation("Images Cleared", "All images and batch processes have been cleared.");
         setStatus("Images Cleared");
-
-
     }
 
     @FXML
     private void handleCrop() {
-        // TODO: Implement cropping logic
         if (imageView.getImage() == null) {
             statusLabel.setText("Please select area");
             showInformation("Area not found" , "Please select area ");
         }
+
         if (imageView.getImage() != null && cropHandler != null) {
             cropHandler.confirmCrop();
             cropConfirmed = true;
@@ -367,20 +340,19 @@ public class CropController {
             setStatus("No Image to be processed, please add");
             return;
         }
+        try {
+            DirectoryChooser directoryChooser = new DirectoryChooser();
+            directoryChooser.setTitle("Select Output Directory");
+            File outputDir = directoryChooser.showDialog(imageView.getScene().getWindow());
 
-        // Directory chooser for output
-        DirectoryChooser directoryChooser = new DirectoryChooser();
-        directoryChooser.setTitle("Select Output Directory");
-        File outputDir = directoryChooser.showDialog(imageView.getScene().getWindow());
-
-        if (outputDir == null) {
-            showInformation("No Directory", "Please select an output directory.");
-            return;
+            if (outputDir == null) {
+                throw new IllegalArgumentException("No output directory selected.");
+            }
+            configureCroppingForAllImages(outputDir);
+            setStatus("Batch processing started.");
+        } catch (IllegalArgumentException e) {
+            showAlert("Invalid Directory", e.getMessage());
         }
-
-        configureCroppingForAllImages(outputDir);
-        setStatus("Batch Processing Started");
-
     }
 
     private void configureCroppingForAllImages(File outputDir) {
@@ -389,30 +361,20 @@ public class CropController {
 
     private void configureNextImage(int currentIndex, File outputDir, List<Image> croppedImages) {
         if (currentIndex >= inputListView.size()) {
-            // After all images are configured, start concurrent processing
             startConcurrentProcessing(croppedImages, outputDir);
             return;
         }
 
-        // Load the current image
         String filePath = inputListView.get(currentIndex);
         File file = new File(filePath);
 
         try {
             if (isImageFile(file)) {
-                // Load the image into the ImageView
                 Image image = new Image(file.toURI().toString());
                 imageView.setImage(image);
-
-                // Start cropping for this image
                 cropHandler.startCrop();
-
-                // Wait for user to confirm cropping
                 cropHandler.setOnCropConfirmed(() -> {
-                    // Store cropped image
                     croppedImages.add(imageView.getImage());
-
-                    // Proceed to configure the next image
                     configureNextImage(currentIndex + 1, outputDir, croppedImages);
                 });
             }
@@ -423,19 +385,14 @@ public class CropController {
 
     private void startConcurrentProcessing(List<Image> croppedImages, File outputDir) {
         ExecutorService executorService = Executors.newFixedThreadPool(4);  // Adjust thread count as needed
-
         List<Runnable> tasks = new ArrayList<>();
-
         for (int i = 0; i < croppedImages.size(); i++) {
             Image image = croppedImages.get(i);
             String fileName = new File(inputListView.get(i)).getName();
 
             tasks.add(() -> {
                 try {
-                    // Apply edge detection
                     Image processedImage = detectEdges(image);
-
-                    // Save the processed image
                     saveProcessedImage(processedImage, outputDir, fileName);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -443,37 +400,22 @@ public class CropController {
                 }
             });
         }
-
-        // Submit all tasks to the executor
         for (Runnable task : tasks) {
             executorService.submit(task);
         }
-
-        // Shutdown the executor once all tasks are submitted
         executorService.shutdown();
-
         showInformation("Batch Processing Complete", "All images have been processed and saved.");
         setStatus("Batch Processing Complete");
     }
 
-
-
     private Image detectEdges(Image croppedImage) {
-        // TODO: Apply edge detection logic here (use OpenCV or custom algorithm)
-        // For now, just return the cropped image as a placeholder
         return croppedImage;
     }
 
-    // Save the processed image
     private void saveProcessedImage(Image image, File outputDir, String originalFileName) throws IOException {
-        // Prepare the output file path
         String outputFileName = originalFileName.substring(0, originalFileName.lastIndexOf('.')) + "_processed.png";
         File outputFile = new File(outputDir, outputFileName);
-
-        // Convert Image to BufferedImage
         BufferedImage bufferedImage = SwingFXUtils.fromFXImage(image, null);
-
-        // Save the buffered image as a file (you can choose the format, e.g., PNG)
         ImageIO.write(bufferedImage, "png", outputFile);
     }
 
@@ -518,20 +460,16 @@ public class CropController {
 
     }
 
-
     private void showAlert(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();
-
     }
+
     private void setStatus(String message) {
         statusLabel.setText("Status: " + message);
     }
-
-
-
 
 }

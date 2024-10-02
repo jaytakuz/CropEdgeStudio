@@ -13,8 +13,8 @@ import java.util.List;
 public class ResizableRectangle extends Rectangle {
 
     private static final int RESIZER_SQUARE_SIDE = 10;
-    private Paint resizerSquareColor = Color.WHITE;
-    private Paint rectangleStrokeColor = Color.BLACK;
+    private Paint resizerSquareColor = Color.valueOf("#3498db");
+    private Paint rectangleStrokeColor = Color.valueOf("#3498db");
     private double mouseClickPozX;
     private double mouseClickPozY;
 
@@ -33,9 +33,7 @@ public class ResizableRectangle extends Rectangle {
         super.setStrokeWidth(2);
         super.setFill(Color.color(0, 0, 0, 0));
 
-
         makeResizerSquares(pane);
-
 
         this.setOnMousePressed(event -> {
             mouseClickPozX = event.getX();
@@ -46,10 +44,8 @@ public class ResizableRectangle extends Rectangle {
         this.setOnMouseDragged(event -> {
             double offsetX = event.getX() - mouseClickPozX;
             double offsetY = event.getY() - mouseClickPozY;
-
             double newX = getX() + offsetX;
             double newY = getY() + offsetY;
-
 
             if (newX >= 0 && newX + getWidth() <= parentPane.getWidth()) {
                 setX(newX);
@@ -60,14 +56,10 @@ public class ResizableRectangle extends Rectangle {
 
             mouseClickPozX = event.getX();
             mouseClickPozY = event.getY();
-
-
             updateDarkAreaCallback.run();
         });
-
         this.setOnMouseReleased(event -> getParent().setCursor(Cursor.DEFAULT));
     }
-
 
     public void removeResizeHandles(Pane pane) {
         for (Rectangle handle : resizeHandles) {
@@ -134,8 +126,6 @@ public class ResizableRectangle extends Rectangle {
                 setX(newX);
                 setWidth(getWidth() - offsetX);
             }
-
-
             updateDarkAreaCallback.run();
         });
     }
@@ -146,7 +136,7 @@ public class ResizableRectangle extends Rectangle {
         squareSW.yProperty().bind(super.yProperty().add(super.heightProperty().subtract(
                 squareSW.heightProperty().divide(2.0))));
         pane.getChildren().add(squareSW);
-        resizeHandles.add(squareSW);  // เพิ่มจุดควบคุมลงใน List
+        resizeHandles.add(squareSW);
 
         squareSW.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> squareSW.getParent().setCursor(Cursor.SW_RESIZE));
         prepareResizerSquare(squareSW);
@@ -160,11 +150,9 @@ public class ResizableRectangle extends Rectangle {
                 setX(newX);
                 setWidth(getWidth() - offsetX);
             }
-
             if (offsetY >= 0 && offsetY <= getY() + getHeight() - 5) {
                 setHeight(offsetY);
             }
-
 
             updateDarkAreaCallback.run();
         });
@@ -178,18 +166,19 @@ public class ResizableRectangle extends Rectangle {
         squareSC.yProperty().bind(super.yProperty().add(super.heightProperty().subtract(
                 squareSC.heightProperty().divide(2.0))));
         pane.getChildren().add(squareSC);
+
         resizeHandles.add(squareSC);
 
         squareSC.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> squareSC.getParent().setCursor(Cursor.S_RESIZE));
         prepareResizerSquare(squareSC);
 
         squareSC.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
+
             double offsetY = event.getY() - getY();
 
             if (offsetY >= 0 && offsetY <= getY() + getHeight() - 5) {
                 setHeight(offsetY);
             }
-
 
             updateDarkAreaCallback.run();
         });
@@ -219,7 +208,6 @@ public class ResizableRectangle extends Rectangle {
                 setHeight(offsetY);
             }
 
-
             updateDarkAreaCallback.run();
         });
     }
@@ -241,7 +229,6 @@ public class ResizableRectangle extends Rectangle {
             if (offsetX >= 0 && offsetX <= getX() + getWidth() - 5) {
                 setWidth(offsetX);
             }
-
 
             updateDarkAreaCallback.run();
         });
@@ -273,7 +260,6 @@ public class ResizableRectangle extends Rectangle {
                 setHeight(getHeight() - offsetY);
             }
 
-
             updateDarkAreaCallback.run();
         });
     }
@@ -299,92 +285,6 @@ public class ResizableRectangle extends Rectangle {
                 setY(newY);
                 setHeight(getHeight() - offsetY);
             }
-
-
-            updateDarkAreaCallback.run();
-        });
-    }
-    private void makeNorthResizerSquare(Pane pane) {
-        Rectangle squareN = new Rectangle(RESIZER_SQUARE_SIDE, RESIZER_SQUARE_SIDE);
-        squareN.xProperty().bind(super.xProperty().add(super.widthProperty().divide(2.0).subtract(squareN.widthProperty().divide(2.0))));
-        squareN.yProperty().bind(super.yProperty().subtract(squareN.heightProperty().divide(2.0)));
-        pane.getChildren().add(squareN);
-        resizeHandles.add(squareN);  // เพิ่มจุดควบคุมลงใน List
-
-        squareN.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> squareN.getParent().setCursor(Cursor.N_RESIZE));
-        prepareResizerSquare(squareN);
-
-        squareN.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
-            double offsetY = event.getY() - getY();
-            if (getHeight() - offsetY > 0) {
-                setY(event.getY());
-                setHeight(getHeight() - offsetY);
-            }
-
-
-            updateDarkAreaCallback.run();
-        });
-    }
-
-    private void makeSouthResizerSquare(Pane pane) {
-        Rectangle squareS = new Rectangle(RESIZER_SQUARE_SIDE, RESIZER_SQUARE_SIDE);
-        squareS.xProperty().bind(super.xProperty().add(super.widthProperty().divide(2.0).subtract(squareS.widthProperty().divide(2.0))));
-        squareS.yProperty().bind(super.yProperty().add(super.heightProperty().subtract(squareS.heightProperty().divide(2.0))));
-        pane.getChildren().add(squareS);
-        resizeHandles.add(squareS);  // เพิ่มจุดควบคุมลงใน List
-
-        squareS.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> squareS.getParent().setCursor(Cursor.S_RESIZE));
-        prepareResizerSquare(squareS);
-
-        squareS.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
-            double offsetY = event.getY() - getY();
-            if (offsetY > 0) {
-                setHeight(offsetY);
-            }
-
-
-            updateDarkAreaCallback.run();
-        });
-    }
-
-    private void makeEastResizerSquare(Pane pane) {
-        Rectangle squareE = new Rectangle(RESIZER_SQUARE_SIDE, RESIZER_SQUARE_SIDE);
-        squareE.xProperty().bind(super.xProperty().add(super.widthProperty().subtract(squareE.widthProperty().divide(2.0))));
-        squareE.yProperty().bind(super.yProperty().add(super.heightProperty().divide(2.0).subtract(squareE.heightProperty().divide(2.0))));
-        pane.getChildren().add(squareE);
-        resizeHandles.add(squareE);  // เพิ่มจุดควบคุมลงใน List
-
-        squareE.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> squareE.getParent().setCursor(Cursor.E_RESIZE));
-        prepareResizerSquare(squareE);
-
-        squareE.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
-            double offsetX = event.getX() - getX();
-            if (offsetX > 0) {
-                setWidth(offsetX);
-            }
-
-
-            updateDarkAreaCallback.run();
-        });
-    }
-
-    private void makeWestResizerSquare(Pane pane) {
-        Rectangle squareW = new Rectangle(RESIZER_SQUARE_SIDE, RESIZER_SQUARE_SIDE);
-        squareW.xProperty().bind(super.xProperty().subtract(squareW.widthProperty().divide(2.0)));
-        squareW.yProperty().bind(super.yProperty().add(super.heightProperty().divide(2.0).subtract(squareW.heightProperty().divide(2.0))));
-        pane.getChildren().add(squareW);
-        resizeHandles.add(squareW);  // เพิ่มจุดควบคุมลงใน List
-
-        squareW.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> squareW.getParent().setCursor(Cursor.W_RESIZE));
-        prepareResizerSquare(squareW);
-
-        squareW.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
-            double offsetX = event.getX() - getX();
-            if (getWidth() - offsetX > 0) {
-                setX(event.getX());
-                setWidth(getWidth() - offsetX);
-            }
-
 
             updateDarkAreaCallback.run();
         });
