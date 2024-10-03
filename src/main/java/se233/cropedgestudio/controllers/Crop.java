@@ -3,7 +3,6 @@ package se233.cropedgestudio.controllers;
 import javafx.geometry.Bounds;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.SnapshotParameters;
-import javafx.scene.control.Alert;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
@@ -11,7 +10,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
-import se233.cropedgestudio.controllers.ResizableRectangle;
 
 public class Crop {
 
@@ -43,18 +41,19 @@ public class Crop {
         imageScroll.setPannable(false);
         removeExistingSelection();
 
-        Bounds viewportBounds = imageScroll.getViewportBounds();
 
-        double viewportWidth = viewportBounds.getWidth();
-        double viewportHeight = viewportBounds.getHeight();
-        double imageWidth = imageView.getBoundsInParent().getWidth();
-        double imageHeight = imageView.getBoundsInParent().getHeight();
+        Bounds imageBounds = imageView.getBoundsInParent();
+
+        double imageWidth = imageBounds.getWidth();
+        double imageHeight = imageBounds.getHeight();
         double rectWidth = imageWidth / 2.5;
         double rectHeight = imageHeight / 2.5;
-        double rectX = (viewportWidth - rectWidth) / 2.5;
-        double rectY = (viewportHeight - rectHeight) / 2.5;
+        double rectX = imageBounds.getMinX() + (imageWidth - rectWidth) / 2;
+        double rectY = imageBounds.getMinY() + (imageHeight - rectHeight) / 2;
 
         selectionRectangle = new ResizableRectangle(rectX, rectY, rectWidth, rectHeight, imagePane, this::updateDarkArea);
+        selectionRectangle.setImageView(imageView);
+
 
         isAreaSelected = true;
         updateDarkArea();
@@ -91,22 +90,20 @@ public class Crop {
 
     private void updateDarkArea() {
         if (selectionRectangle != null) {
-            Bounds viewportBounds = imageScroll.getViewportBounds();
+            Bounds imageBounds = imageView.getBoundsInParent();
 
-            double viewportWidth = viewportBounds.getWidth();
-            double viewportHeight = viewportBounds.getHeight();
-            double rectX = selectionRectangle.getX();
-            double rectY = selectionRectangle.getY();
-            double rectWidth = selectionRectangle.getWidth();
-            double rectHeight = selectionRectangle.getHeight();
+            darkArea.setWidth(imageBounds.getWidth());
+            darkArea.setHeight(imageBounds.getHeight());
+            darkArea.setLayoutX(imageBounds.getMinX());
+            darkArea.setLayoutY(imageBounds.getMinY());
 
-            darkArea.setWidth(viewportWidth);
-            darkArea.setHeight(viewportHeight);
-            darkArea.setLayoutX(0);
-            darkArea.setLayoutY(0);
-
-            Rectangle outerRect = new Rectangle(0, 0, viewportWidth, viewportHeight);
-            Rectangle innerRect = new Rectangle(rectX, rectY, rectWidth, rectHeight);
+            Rectangle outerRect = new Rectangle(0, 0, imageBounds.getWidth(), imageBounds.getHeight());
+            Rectangle innerRect = new Rectangle(
+                    selectionRectangle.getX() - imageBounds.getMinX(),
+                    selectionRectangle.getY() - imageBounds.getMinY(),
+                    selectionRectangle.getWidth(),
+                    selectionRectangle.getHeight()
+            );
 
             Shape clippedArea = Shape.subtract(outerRect, innerRect);
 
@@ -123,4 +120,13 @@ public class Crop {
         }
         isAreaSelected = false;
     }
+
+    public void resetDarkArea() {
+        if (darkArea != null) {
+            darkArea.setVisible(false);
+            updateDarkArea();
+        }
+    }
+
+
 }

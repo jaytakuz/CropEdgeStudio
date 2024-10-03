@@ -1,6 +1,8 @@
 package se233.cropedgestudio.controllers;
 
+import javafx.geometry.Bounds;
 import javafx.scene.Cursor;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -18,13 +20,12 @@ public class ResizableRectangle extends Rectangle {
     private double mouseClickPozX;
     private double mouseClickPozY;
 
-
     private final List<Rectangle> resizeHandles = new ArrayList<>();
     private Pane parentPane;
     private Runnable updateDarkAreaCallback;
+    private ImageView imageView;
 
     public ResizableRectangle(double x, double y, double width, double height, Pane pane, Runnable updateDarkAreaCallback) {
-
         super(x, y, width, height);
         this.parentPane = pane;
         this.updateDarkAreaCallback = updateDarkAreaCallback;
@@ -47,10 +48,12 @@ public class ResizableRectangle extends Rectangle {
             double newX = getX() + offsetX;
             double newY = getY() + offsetY;
 
-            if (newX >= 0 && newX + getWidth() <= parentPane.getWidth()) {
+            Bounds imageBounds = imageView.getBoundsInParent();
+
+            if (newX >= imageBounds.getMinX() && newX + getWidth() <= imageBounds.getMaxX()) {
                 setX(newX);
             }
-            if (newY >= 0 && newY + getHeight() <= parentPane.getHeight()) {
+            if (newY >= imageBounds.getMinY() && newY + getHeight() <= imageBounds.getMaxY()) {
                 setY(newY);
             }
 
@@ -61,11 +64,15 @@ public class ResizableRectangle extends Rectangle {
         this.setOnMouseReleased(event -> getParent().setCursor(Cursor.DEFAULT));
     }
 
+    public void setImageView(ImageView imageView) {
+        this.imageView = imageView;
+    }
+
     public void removeResizeHandles(Pane pane) {
         for (Rectangle handle : resizeHandles) {
             pane.getChildren().remove(handle);
         }
-        resizeHandles.clear(); // ล้างรายการจุดควบคุม
+        resizeHandles.clear();
     }
 
     private void makeResizerSquares(Pane pane) {
@@ -78,13 +85,25 @@ public class ResizableRectangle extends Rectangle {
         makeNEResizerSquare(pane);
         makeNCResizerSquare(pane);
     }
+    private void updateBounds(double newX, double newY, double newWidth, double newHeight) {
+        Bounds imageBounds = imageView.getBoundsInParent();
+
+        if (newX >= imageBounds.getMinX() && newX + newWidth <= imageBounds.getMaxX()) {
+            setX(newX);
+            setWidth(newWidth);
+        }
+        if (newY >= imageBounds.getMinY() && newY + newHeight <= imageBounds.getMaxY()) {
+            setY(newY);
+            setHeight(newHeight);
+        }
+    }
 
     private void makeNWResizerSquare(Pane pane) {
         Rectangle squareNW = new Rectangle(RESIZER_SQUARE_SIDE, RESIZER_SQUARE_SIDE);
         squareNW.xProperty().bind(super.xProperty().subtract(squareNW.widthProperty().divide(2.0)));
         squareNW.yProperty().bind(super.yProperty().subtract(squareNW.heightProperty().divide(2.0)));
         pane.getChildren().add(squareNW);
-        resizeHandles.add(squareNW);  // เพิ่มจุดควบคุมลงใน List
+        resizeHandles.add(squareNW);
 
         squareNW.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> squareNW.getParent().setCursor(Cursor.NW_RESIZE));
         prepareResizerSquare(squareNW);
@@ -114,6 +133,7 @@ public class ResizableRectangle extends Rectangle {
                 squareCW.heightProperty().divide(2.0))));
         pane.getChildren().add(squareCW);
         resizeHandles.add(squareCW);
+        prepareResizerSquare(squareCW);
 
         squareCW.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> squareCW.getParent().setCursor(Cursor.W_RESIZE));
         prepareResizerSquare(squareCW);
@@ -160,13 +180,11 @@ public class ResizableRectangle extends Rectangle {
 
     private void makeSCResizerSquare(Pane pane) {
         Rectangle squareSC = new Rectangle(RESIZER_SQUARE_SIDE, RESIZER_SQUARE_SIDE);
-
         squareSC.xProperty().bind(super.xProperty().add(super.widthProperty().divide(2.0).subtract(
                 squareSC.widthProperty().divide(2.0))));
         squareSC.yProperty().bind(super.yProperty().add(super.heightProperty().subtract(
                 squareSC.heightProperty().divide(2.0))));
         pane.getChildren().add(squareSC);
-
         resizeHandles.add(squareSC);
 
         squareSC.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> squareSC.getParent().setCursor(Cursor.S_RESIZE));
@@ -219,7 +237,7 @@ public class ResizableRectangle extends Rectangle {
         squareCE.yProperty().bind(super.yProperty().add(super.heightProperty().divide(2.0).subtract(
                 squareCE.heightProperty().divide(2.0))));
         pane.getChildren().add(squareCE);
-        resizeHandles.add(squareCE);  // เพิ่มจุดควบคุมลงใน List
+        resizeHandles.add(squareCE);
 
         squareCE.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> squareCE.getParent().setCursor(Cursor.E_RESIZE));
         prepareResizerSquare(squareCE);
@@ -236,12 +254,11 @@ public class ResizableRectangle extends Rectangle {
 
     private void makeNEResizerSquare(Pane pane) {
         Rectangle squareNE = new Rectangle(RESIZER_SQUARE_SIDE, RESIZER_SQUARE_SIDE);
-
         squareNE.xProperty().bind(super.xProperty().add(super.widthProperty()).subtract(
                 squareNE.widthProperty().divide(2.0)));
         squareNE.yProperty().bind(super.yProperty().subtract(squareNE.heightProperty().divide(2.0)));
         pane.getChildren().add(squareNE);
-        resizeHandles.add(squareNE);  // เพิ่มจุดควบคุมลงใน List
+        resizeHandles.add(squareNE);
 
         squareNE.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> squareNE.getParent().setCursor(Cursor.NE_RESIZE));
         prepareResizerSquare(squareNE);
@@ -266,7 +283,6 @@ public class ResizableRectangle extends Rectangle {
 
     private void makeNCResizerSquare(Pane pane) {
         Rectangle squareNC = new Rectangle(RESIZER_SQUARE_SIDE, RESIZER_SQUARE_SIDE);
-
         squareNC.xProperty().bind(super.xProperty().add(super.widthProperty().divide(2.0).subtract(
                 squareNC.widthProperty().divide(2.0))));
         squareNC.yProperty().bind(super.yProperty().subtract(
@@ -292,8 +308,9 @@ public class ResizableRectangle extends Rectangle {
 
     private void prepareResizerSquare(Rectangle rect) {
         rect.setFill(resizerSquareColor);
-
         rect.addEventHandler(MouseEvent.MOUSE_EXITED, event ->
                 rect.getParent().setCursor(Cursor.DEFAULT));
     }
+
+
 }

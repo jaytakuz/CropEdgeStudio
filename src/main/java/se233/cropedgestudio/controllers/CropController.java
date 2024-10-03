@@ -11,6 +11,7 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
@@ -41,21 +42,21 @@ public class CropController {
     private BorderPane imagePane;
 
     @FXML
-    ScrollPane imageScroll;
+    private ScrollPane imageScroll;
 
     @FXML
     Label statusLabel;
 
-    private Crop cropHandler;
+    private Crop crop;
     private List<String> inputListView = new ArrayList<String>();
-    private int currentIndex = 0;
+
     private volatile boolean cropConfirmed;
     private Rectangle selectionRectangle;
     private ExecutorService batchExecutorService;
 
     @FXML
     private void initialize() {
-        cropHandler = new Crop(imageView, imagePane, imageScroll);
+        crop = new Crop(imageView, imagePane, imageScroll);
         setupDragAndDrop();
     }
 
@@ -81,8 +82,8 @@ public class CropController {
                         if (isImageFile(file)) {
                             inputListView.add(file.getAbsolutePath());
                             myListView.getItems().add(file.getName());
-                            // Optionally display the image immediately in ImageView
                             imageView.setImage(new Image(file.toURI().toString()));
+                            handleClearSelect();
                             setStatus("Droped files" + file.getName() );
                             success = true;
                         } else if (file.getName().toLowerCase().endsWith(".zip")) {
@@ -92,6 +93,7 @@ public class CropController {
                                     if (isImageFile(extractedFile)) {
                                         inputListView.add(extractedFile.getAbsolutePath());
                                         myListView.getItems().add(extractedFile.getName());
+                                        handleClearSelect();
                                         setStatus("ZIP file dropped and extracted. Loaded " + inputListView.size() + " images.");
                                     }
                                 }
@@ -112,15 +114,18 @@ public class CropController {
 
         //double-click on ListView to load the selected image
         myListView.setOnMouseClicked((MouseEvent event) -> {
-            if (event.getClickCount() == 2) { // Double-click
+            if (event.getClickCount() == 2) {
                 String selectedFileName = myListView.getSelectionModel().getSelectedItem();
                 if (selectedFileName != null) {
+                    handleClearSelect();
                     int index = myListView.getSelectionModel().getSelectedIndex();
                     String filePath = inputListView.get(index);
-                    // Display the selected image in ImageView
                     File file = new File(filePath);
                     Image image = new Image(file.toURI().toString());
                     imageView.setImage(image);
+
+
+
                     setStatus("File: " + selectedFileName);
                 }
             }
@@ -131,46 +136,6 @@ public class CropController {
             if (dragboard.hasFiles()) {
                 event.acceptTransferModes(TransferMode.COPY);
             }
-            event.consume();
-        });
-
-        //drop
-        imageView.setOnDragDropped(event -> {
-            boolean success = false;
-            Dragboard dragboard = event.getDragboard();
-
-            if (dragboard.hasFiles()) {
-                List<File> files = dragboard.getFiles();
-                for (File file : files) {
-                    try {
-                        if (isImageFile(file)) {
-                            inputListView.add(file.getAbsolutePath());
-                            myListView.getItems().add(file.getName());
-                            // Optionally display the image immediately in ImageView
-                            imageView.setImage(new Image(file.toURI().toString()));
-                            setStatus("Droped files" + file.getName() );
-                            success = true;
-                        } else if (file.getName().toLowerCase().endsWith(".zip")) {
-                            try {
-                                List<File> extractedFiles = extractZipFile(file);
-                                for (File extractedFile : extractedFiles) {
-                                    if (isImageFile(extractedFile)) {
-                                        inputListView.add(extractedFile.getAbsolutePath());
-                                        myListView.getItems().add(extractedFile.getName());
-                                        setStatus("ZIP file dropped and extracted. Loaded " + inputListView.size() + " images.");
-                                    }
-                                }
-                                success = true;
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
-            event.setDropCompleted(success);
             event.consume();
         });
     }
@@ -218,39 +183,42 @@ public class CropController {
             setStatus("You have not selected a file, please select again");
             return;
         }
+        if (imageView.getImage() != null) {
+            handleClearSelect();
+        }
         if (selectedFile != null) {
-                try {
-                    if (isImageFile(selectedFile)) {
-                        inputListView.add(selectedFile.getAbsolutePath());
-                        myListView.getItems().add(selectedFile.getName());
-                        setStatus("Image load successfully.");
-                        // Optionally display the image immediately in ImageView
-                        imageView.setImage(new Image(selectedFile.toURI().toString()));
+            try {
+                if (isImageFile(selectedFile)) {
+                    inputListView.add(selectedFile.getAbsolutePath());
+                    myListView.getItems().add(selectedFile.getName());
+                    setStatus("Image load successfully.");
 
-                    } else if (selectedFile.getName().toLowerCase().endsWith(".zip")) {
-                        try {
-                            List<File> extractedFiles = extractZipFile(selectedFile);
-                            for (File extractedFile : extractedFiles) {
-                                if (isImageFile(extractedFile)) {
-                                    inputListView.add(extractedFile.getAbsolutePath());
-                                    myListView.getItems().add(extractedFile.getName());
-                                    setStatus("ZIP file extracted successfully. Loaded " + inputListView.size() + " images.");
-                                }
+                    imageView.setImage(new Image(selectedFile.toURI().toString()));
+
+                } else if (selectedFile.getName().toLowerCase().endsWith(".zip")) {
+                    try {
+                        List<File> extractedFiles = extractZipFile(selectedFile);
+                        for (File extractedFile : extractedFiles) {
+                            if (isImageFile(extractedFile)) {
+                                inputListView.add(extractedFile.getAbsolutePath());
+                                myListView.getItems().add(extractedFile.getName());
+                                setStatus("ZIP file extracted successfully. Loaded " + inputListView.size() + " images.");
                             }
-                        } catch (IOException e) {
-                            e.printStackTrace();
                         }
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
                 }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
     @FXML
     public void handleSelectArea() {
         if (imageView.getImage() != null) {
-            cropHandler.startCrop();
+            crop.startCrop();
             setStatus("Selecting area");
 
         } else if (imageView.getImage() == null || myListView.getSelectionModel().getSelectedItem() == null){
@@ -261,7 +229,7 @@ public class CropController {
     @FXML
     public void handleClearSelect() {
 
-        if (!cropHandler.isAreaSelected) {
+        if (!crop.isAreaSelected) {
             setStatus("No select area, please select area");
             return;
         }
@@ -270,10 +238,10 @@ public class CropController {
             imagePane.getChildren().remove(selectionRectangle);
             selectionRectangle = null;
         }
-        cropHandler.isAreaSelected = false;
+        crop.isAreaSelected = false;
 
-        if (cropHandler.darkArea != null) {
-            cropHandler.darkArea.setVisible(false);
+        if (crop.darkArea != null) {
+            crop.darkArea.setVisible(false);
         }
 
         imagePane.requestFocus();
@@ -283,9 +251,9 @@ public class CropController {
 
     @FXML
     private void resetCropHandler() {
-        if (cropHandler != null) {
-            cropHandler.removeExistingSelection();
-            cropHandler = new Crop(imageView, imagePane, imageScroll);
+        if (crop != null) {
+            crop.removeExistingSelection();
+            crop = new Crop(imageView, imagePane, imageScroll);
         }
     }
 
@@ -324,14 +292,50 @@ public class CropController {
         if (imageView.getImage() == null) {
             statusLabel.setText("Please select area");
             showInformation("Area not found" , "Please select area ");
+            return;
         }
 
-        if (imageView.getImage() != null && cropHandler != null) {
-            cropHandler.confirmCrop();
-            cropConfirmed = true;
-            setStatus("Crop confirmed");
+        if (!crop.isAreaSelected) {
+            statusLabel.setText("Please select an area");
+            showInformation("Area not selected", "Please select an area to crop");
+            return;
+        }
+        crop.confirmCrop();
+        cropConfirmed = true;
+        setStatus("Image cropped");
+    }
+
+    @FXML
+    private void handleSave() {
+        if(!cropConfirmed && !crop.isAreaSelected){
+            showInformation("No crop image", "Please crop image first");
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Image");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Save as png", "*.png"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Save as jpg", "*.jpg"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Save as jpeg", "*.jpeg"));
+        File file = fileChooser.showSaveDialog(imageView.getScene().getWindow());
+
+        if (file != null) {
+            try {
+                BufferedImage bufferedImage = SwingFXUtils.fromFXImage(imageView.getImage(), null);
+                ImageIO.write(bufferedImage, "png", file);
+                ImageIO.write(bufferedImage, "jpg", file);
+                ImageIO.write(bufferedImage, "jpeg", file);
+                showInformation("Saved Image", "Image saved to " + file.getAbsolutePath());
+                setStatus("Selecting area");
+            } catch (IOException e) {
+
+                e.printStackTrace();
+            }
+        } else {
+            showInformation("File not save yet" , "You have canceled the save file");
         }
     }
+
 
     @FXML
     public void handleBatchProcess(ActionEvent event) {
@@ -348,6 +352,7 @@ public class CropController {
             if (outputDir == null) {
                 throw new IllegalArgumentException("No output directory selected.");
             }
+
             configureCroppingForAllImages(outputDir);
             setStatus("Batch processing started.");
         } catch (IllegalArgumentException e) {
@@ -372,8 +377,8 @@ public class CropController {
             if (isImageFile(file)) {
                 Image image = new Image(file.toURI().toString());
                 imageView.setImage(image);
-                cropHandler.startCrop();
-                cropHandler.setOnCropConfirmed(() -> {
+                handleClearSelect();
+                crop.setOnCropConfirmed(() -> {
                     croppedImages.add(imageView.getImage());
                     configureNextImage(currentIndex + 1, outputDir, croppedImages);
                 });
@@ -404,6 +409,7 @@ public class CropController {
             executorService.submit(task);
         }
         executorService.shutdown();
+        imageView.setImage(null);
         showInformation("Batch Processing Complete", "All images have been processed and saved.");
         setStatus("Batch Processing Complete");
     }
@@ -420,36 +426,6 @@ public class CropController {
     }
 
 
-    @FXML
-    private void handleSave() {
-        if(!cropConfirmed && !cropHandler.isAreaSelected){
-            showInformation("No crop image", "Please crop image first");
-            return;
-        }
-
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Save Image");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Save as png", "*.png"));
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Save as jpg", "*.jpg"));
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Save as jpeg", "*.jpeg"));
-        File file = fileChooser.showSaveDialog(imageView.getScene().getWindow());
-
-        if (file != null) {
-            try {
-                BufferedImage bufferedImage = SwingFXUtils.fromFXImage(imageView.getImage(), null);
-                ImageIO.write(bufferedImage, "png", file);
-                ImageIO.write(bufferedImage, "jpg", file);
-                ImageIO.write(bufferedImage, "jpeg", file);
-                showInformation("Saved Image", "Image saved to " + file.getAbsolutePath());
-                setStatus("Selecting area");
-            } catch (IOException e) {
-
-                e.printStackTrace();
-            }
-        } else {
-            showInformation("File not save yet" , "You have canceled the save file");
-        }
-    }
 
     private void showInformation(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
