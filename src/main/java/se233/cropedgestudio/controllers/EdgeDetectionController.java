@@ -11,13 +11,15 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
-import se233.cropedgestudio.utils.ImageProcessor;
+import se233.cropedgestudio.utils.*;
 
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.io.FileInputStream;
@@ -44,15 +46,20 @@ public class EdgeDetectionController {
     @FXML private RadioButton radio3x3;
     @FXML private RadioButton radio5x5;
     @FXML private Label statusLabel;
-
+    @FXML private ProgressBar progressBar;
     @FXML private Button previousButton;
     @FXML private Button nextButton;
 
+    private Map<String, EdgeDetectionAlgorithm> algorithms;
     private List<Image> imagesList = new ArrayList<>();
     private int currentIndex = 0;
 
     @FXML
     public void initialize() {
+        algorithms = new HashMap<>();
+        algorithms.put("Roberts Cross", new RobertsCrossAlgorithm());
+        algorithms.put("Sobel", new SobelAlgorithm());
+        algorithms.put("Laplacian", new LaplacianAlgorithm());
         algorithmChoice.getItems().addAll("Roberts Cross", "Sobel", "Laplacian");
         robertsStrengthSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
             robertsStrengthLabel.setText(String.format("%.0f", newVal.doubleValue()));
@@ -258,34 +265,46 @@ public class EdgeDetectionController {
 
         Image currentImage = imagesList.get(currentIndex);
 
-        String algorithm = algorithmChoice.getValue();
-        if (algorithm == null) {
+        String algorithmName = algorithmChoice.getValue();
+        if (algorithmName == null) {
             showAlert("Error", "Please select an algorithm.", Alert.AlertType.WARNING);
             return;
         }
 
-        try {
-            Image processedImage;
-            switch (algorithm) {
-                case "Roberts Cross":
-                    int strength = (int) robertsStrengthSlider.getValue();
-                    processedImage = ImageProcessor.applyRobertsCross(currentImage, strength);
-                    break;
-                case "Sobel":
-                    processedImage = ImageProcessor.applySobel(currentImage);
-                    break;
-                case "Laplacian":
-                    int maskSize = radio5x5.isSelected() ? 5 : 3;
-                    processedImage = ImageProcessor.applyLaplacian(currentImage, maskSize);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unknown algorithm: " + algorithm);
+        Task<Image> task = new Task<>() {
+            @Override
+            protected Image call() throws Exception {
+                updateProgress(0, 100);
+                EdgeDetectionAlgorithm algorithm = algorithms.get(algorithmName);
+                if (algorithm == null) {
+                    throw new ImageProcessingException("Unknown algorithm: " + algorithmName);
+                }
+
+                int strength = (int) robertsStrengthSlider.getValue();
+                int maskSize = radio5x5.isSelected() ? 5 : 3;
+                updateProgress(50, 100);
+                Image processedImage = algorithm.apply(currentImage, algorithmName.equals("Laplacian") ? maskSize : strength);
+                updateProgress(100, 100);
+                return processedImage;
             }
-            outputImageView.setImage(processedImage);
+        };
+
+        progressBar.progressProperty().bind(task.progressProperty());
+
+        task.setOnSucceeded(e -> {
+            outputImageView.setImage(task.getValue());
             setStatus("Edge detection applied successfully");
-        } catch (Exception e) {
-            showAlert("Error", "Failed to apply edge detection: " + e.getMessage(), Alert.AlertType.ERROR);
-        }
+            progressBar.progressProperty().unbind();
+            progressBar.setProgress(0);
+        });
+
+        task.setOnFailed(e -> {
+            showAlert("Error", task.getException().getMessage(), Alert.AlertType.ERROR);
+            progressBar.progressProperty().unbind();
+            progressBar.setProgress(0);
+        });
+
+        new Thread(task).start();
     }
 
     @FXML
@@ -315,25 +334,17 @@ public class EdgeDetectionController {
             @Override
             protected Void call() throws Exception {
                 int total = imagesList.size();
+                EdgeDetectionAlgorithm edgeAlgorithm = algorithms.get(algorithm);
+                if (edgeAlgorithm == null) {
+                    throw new IllegalArgumentException("Unknown algorithm: " + algorithm);
+                }
+
                 for (int i = 0; i < total; i++) {
                     Image originalImage = imagesList.get(i);
-                    Image processedImage;
+                    int strength = (int) robertsStrengthSlider.getValue();
+                    int maskSize = radio5x5.isSelected() ? 5 : 3;
 
-                    switch (algorithm)  {
-                        case "Roberts Cross":
-                            int strength = (int) robertsStrengthSlider.getValue();
-                            processedImage = ImageProcessor.applyRobertsCross(originalImage, strength);
-                            break;
-                        case "Sobel":
-                            processedImage = ImageProcessor.applySobel(originalImage);
-                            break;
-                        case "Laplacian":
-                            int maskSize = radio5x5.isSelected() ? 5 : 3;
-                            processedImage = ImageProcessor.applyLaplacian(originalImage, maskSize);
-                            break;
-                        default:
-                            throw new IllegalArgumentException("Unknown algorithm: " + algorithm);
-                    }
+                    Image processedImage = edgeAlgorithm.apply(originalImage, algorithm.equals("Laplacian") ? maskSize : strength);
 
                     File outputFile = new File(outputDir, "processed_image_" + (i + 1) + ".png");
                     ImageIO.write(ImageProcessor.fromFXImage(processedImage), "png", outputFile);

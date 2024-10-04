@@ -62,5 +62,6 @@
     </HBox>
 
     <Label fx:id="statusLabel" text="Status: Ready" />
+    <ProgressBar fx:id="progressBar" progress="0.0" visible="false" />
 
 </VBox>

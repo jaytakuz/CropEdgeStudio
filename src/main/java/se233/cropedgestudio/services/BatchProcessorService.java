@@ -3,6 +3,7 @@ package se233.cropedgestudio.services;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import se233.cropedgestudio.models.ProcessingJob;
+import se233.cropedgestudio.utils.EdgeDetectionAlgorithm;
 import se233.cropedgestudio.utils.ImageProcessor;
 import se233.cropedgestudio.utils.ImageProcessingException;
 
@@ -10,6 +11,7 @@ import javax.imageio.ImageIO;
 import javafx.scene.image.Image;
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -17,10 +19,12 @@ import java.util.concurrent.Executors;
 public class BatchProcessorService extends Service<Void> {
     private List<ProcessingJob> jobs;
     private int numThreads;
+    private Map<String, EdgeDetectionAlgorithm> algorithms;
 
-    public BatchProcessorService(List<ProcessingJob> jobs, int numThreads) {
+    public BatchProcessorService(List<ProcessingJob> jobs, int numThreads, Map<String, EdgeDetectionAlgorithm> algorithms) {
         this.jobs = jobs;
         this.numThreads = numThreads;
+        this.algorithms = algorithms;
     }
 
     @Override
@@ -28,27 +32,20 @@ public class BatchProcessorService extends Service<Void> {
         return new Task<>() {
             @Override
             protected Void call() throws Exception {
-                ExecutorService executor = Executors.newFixedThreadPool(numThreads);
                 int total = jobs.size();
                 AtomicInteger completed = new AtomicInteger(0);
 
-                for (ProcessingJob job : jobs) {
-                    executor.submit(() -> {
-                        try {
-                            processJob(job);
-                            int completedCount = completed.incrementAndGet();
-                            updateProgress(completedCount, total);
-                            updateMessage("Processed " + completedCount + " of " + total + " images");
-                        } catch (ImageProcessingException e) {
-                            updateMessage("Error processing " + job.getInputFile().getName() + ": " + e.getMessage());
-                        }
-                    });
-                }
+                jobs.parallelStream().forEach(job -> {
+                    try {
+                        processJob(job);
+                        int completedCount = completed.incrementAndGet();
+                        updateProgress(completedCount, total);
+                        updateMessage("Processed " + completedCount + " of " + total + " images");
+                    } catch (ImageProcessingException e) {
+                        updateMessage("Error processing " + job.getInputFile().getName() + ": " + e.getMessage());
+                    }
+                });
 
-                executor.shutdown();
-                while (!executor.isTerminated()) {
-                    Thread.sleep(100);
-                }
                 return null;
             }
         };
@@ -57,21 +54,12 @@ public class BatchProcessorService extends Service<Void> {
     private void processJob(ProcessingJob job) throws ImageProcessingException {
         try {
             Image image = new Image(job.getInputFile().toURI().toString());
-            Image processedImage;
-
-            switch (job.getAlgorithm()) {
-                case "Roberts Cross":
-                    processedImage = ImageProcessor.applyRobertsCross(image, job.getStrength());
-                    break;
-                case "Sobel":
-                    processedImage = ImageProcessor.applySobel(image);
-                    break;
-                case "Laplacian":
-                    processedImage = ImageProcessor.applyLaplacian(image, job.getMaskSize());
-                    break;
-                default:
-                    throw new ImageProcessingException("Unsupported algorithm: " + job.getAlgorithm());
+            EdgeDetectionAlgorithm edgeAlgorithm = algorithms.get(job.getAlgorithm());
+            if (edgeAlgorithm == null) {
+                throw new ImageProcessingException("Unsupported algorithm: " + job.getAlgorithm());
             }
+
+            Image processedImage = edgeAlgorithm.apply(image, job.getAlgorithm().equals("Laplacian") ? job.getMaskSize() : job.getStrength());
 
             ImageIO.write(ImageProcessor.fromFXImage(processedImage), "png", job.getOutputFile());
         } catch (Exception e) {
