@@ -1,5 +1,6 @@
 package se233.cropedgestudio.controllers;
 
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -70,6 +71,13 @@ public class EdgeDetectionController {
             robertsStrengthLabel.setText(String.format("%.0f", newVal.doubleValue()));
         });
         setupDragAndDrop();
+
+        // Load CSS after the scene is fully loaded
+        Platform.runLater(() -> {
+            String cssPath = "/se233/cropedgestudio/styles/edge-detection.css";
+            String css = getClass().getResource(cssPath).toExternalForm();
+            inputImageView.getScene().getStylesheets().add(css);
+        });
 
         sobelThresholdField = new TextField("50");
         sobelThresholdField.setPromptText("between 0-100 %)");
