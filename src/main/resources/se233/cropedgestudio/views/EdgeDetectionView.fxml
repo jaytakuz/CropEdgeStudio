@@ -6,8 +6,8 @@
 <?import javafx.geometry.Insets?>
 
 <?import javafx.scene.shape.Rectangle?>
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="se233.cropedgestudio.controllers.EdgeDetectionController"
       spacing="20" alignment="CENTER" styleClass="edge-detection-content">
 
@@ -39,6 +39,7 @@
             </StackPane>
         </VBox>
     </HBox>
+
     <VBox fx:id="adjustmentBox" spacing="10" alignment="CENTER" visible="false" managed="false">
         <HBox fx:id="robertsBox" spacing="10" alignment="CENTER" visible="false" managed="false">
             <Label text="Roberts Cross Strength:" styleClass="slider-label"/>
@@ -53,6 +54,10 @@
                 </toggleGroup>
             </RadioButton>
             <RadioButton fx:id="radio5x5" text="5x5" toggleGroup="$laplacianMaskSize" styleClass="mask-size-radio"/>
+        </HBox>
+        <HBox fx:id="sobelBox" spacing="10" alignment="CENTER" visible="false" managed="false">
+            <Label text="Sobel Threshold:" styleClass="slider-label"/>
+            <TextField fx:id="sobelThresholdField" promptText="Threshold (0-100)" styleClass="threshold-input"/>
         </HBox>
     </VBox>
 

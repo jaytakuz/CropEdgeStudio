@@ -49,6 +49,8 @@ public class EdgeDetectionController {
     @FXML private ProgressBar progressBar;
     @FXML private Button previousButton;
     @FXML private Button nextButton;
+    @FXML private TextField sobelThresholdField;
+    @FXML private HBox sobelBox;
 
     private Map<String, EdgeDetectionAlgorithm> algorithms;
     private List<Image> imagesList = new ArrayList<>();
@@ -65,6 +67,15 @@ public class EdgeDetectionController {
             robertsStrengthLabel.setText(String.format("%.0f", newVal.doubleValue()));
         });
         setupDragAndDrop();
+
+        sobelThresholdField = new TextField("50");
+        sobelThresholdField.setPromptText("Threshold (0-100)");
+        sobelBox = new HBox(10, new Label("Sobel Threshold:"), sobelThresholdField);
+        sobelBox.setAlignment(Pos.CENTER);
+        sobelBox.setVisible(false);
+        sobelBox.setManaged(false);
+
+        adjustmentBox.getChildren().add(sobelBox);
     }
 
     @FXML
@@ -160,11 +171,12 @@ public class EdgeDetectionController {
         String selectedAlgorithm = algorithmChoice.getValue();
         adjustmentBox.setVisible(true);
         adjustmentBox.setManaged(true);
-
         robertsBox.setVisible(false);
         robertsBox.setManaged(false);
         laplacianBox.setVisible(false);
         laplacianBox.setManaged(false);
+        sobelBox.setVisible(false);
+        sobelBox.setManaged(false);
 
         switch (selectedAlgorithm) {
             case "Roberts Cross":
@@ -176,6 +188,8 @@ public class EdgeDetectionController {
                 laplacianBox.setManaged(true);
                 break;
             case "Sobel":
+                sobelBox.setVisible(true);
+                sobelBox.setManaged(true);
                 break;
             default:
                 adjustmentBox.setVisible(false);
@@ -279,11 +293,25 @@ public class EdgeDetectionController {
                 if (algorithm == null) {
                     throw new ImageProcessingException("Unknown algorithm: " + algorithmName);
                 }
-
                 int strength = (int) robertsStrengthSlider.getValue();
                 int maskSize = radio5x5.isSelected() ? 5 : 3;
+                int threshold = 50;
+
+                if (algorithmName.equals("Sobel")) {
+                    try {
+                        threshold = Integer.parseInt(sobelThresholdField.getText());
+                        if (threshold < 0 || threshold > 100) {
+                            throw new NumberFormatException();
+                        }
+                    } catch (NumberFormatException e) {
+                        throw new ImageProcessingException("Invalid Sobel threshold. Please enter a number between 0 and 100.");
+                    }
+                }
+
                 updateProgress(50, 100);
-                Image processedImage = algorithm.apply(currentImage, algorithmName.equals("Laplacian") ? maskSize : strength);
+                Image processedImage = algorithm.apply(currentImage,
+                        algorithmName.equals("Laplacian") ? maskSize :
+                                (algorithmName.equals("Sobel") ? threshold : strength));
                 updateProgress(100, 100);
                 return processedImage;
             }
