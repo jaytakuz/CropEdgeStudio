@@ -5,19 +5,19 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox alignment="CENTER" fillWidth="false" prefHeight="638.0" prefWidth="800.0" spacing="10" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="se233.cropedgestudio.controllers.CropController">
-    <ScrollPane fx:id="imageScroll" fitToHeight="true" fitToWidth="true" prefHeight="356.0" prefWidth="640.0">
+<VBox alignment="CENTER" fillWidth="false" prefHeight="600.0" prefWidth="800.0" spacing="15.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="se233.cropedgestudio.controllers.CropController">
+    <ScrollPane fx:id="imageScroll" fitToHeight="true" fitToWidth="true" prefHeight="302.0" prefWidth="608.0">
         <content>
-            <BorderPane fx:id="imagePane" prefHeight="354.0" prefWidth="653.0">
+            <BorderPane fx:id="imagePane" prefHeight="268.0" prefWidth="569.0">
                 <opaqueInsets>
                     <Insets />
                 </opaqueInsets>
                 <center>
-                    <ImageView fx:id="imageView" fitHeight="344.0" fitWidth="616.0" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER" />
+                    <ImageView fx:id="imageView" fitHeight="285.0" fitWidth="592.0" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER" />
                 </center>
             </BorderPane>
         </content></ScrollPane>
-    <HBox alignment="CENTER" prefHeight="104.0" prefWidth="800.0" spacing="10">
+    <HBox alignment="CENTER" prefHeight="75.0" prefWidth="800.0" spacing="10">
         <ListView fx:id="myListView" prefHeight="92.0" prefWidth="260.0" />
     </HBox>
     <Pane prefHeight="129.0" prefWidth="800.0">

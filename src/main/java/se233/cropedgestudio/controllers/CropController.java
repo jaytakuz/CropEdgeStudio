@@ -2,17 +2,23 @@ package se233.cropedgestudio.controllers;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Bounds;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.control.ScrollPane;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javax.imageio.ImageIO;
@@ -131,13 +137,6 @@ public class CropController {
             }
         });
 
-        imageView.setOnDragOver (event -> {
-            Dragboard dragboard = event.getDragboard();
-            if (dragboard.hasFiles()) {
-                event.acceptTransferModes(TransferMode.COPY);
-            }
-            event.consume();
-        });
     }
 
     private List<File> extractZipFile(File zipFile) throws IOException {
@@ -218,7 +217,7 @@ public class CropController {
     @FXML
     public void handleSelectArea() {
         if (imageView.getImage() != null) {
-            crop.startCrop();
+            crop.startselect();
             setStatus("Selecting area");
 
         } else if (imageView.getImage() == null || myListView.getSelectionModel().getSelectedItem() == null){
@@ -252,7 +251,7 @@ public class CropController {
     @FXML
     private void resetCropHandler() {
         if (crop != null) {
-            crop.removeExistingSelection();
+            crop.removeSelection();
             crop = new Crop(imageView, imagePane, imageScroll);
         }
     }
@@ -300,7 +299,7 @@ public class CropController {
             showInformation("Area not selected", "Please select an area to crop");
             return;
         }
-        crop.confirmCrop();
+        crop.Cropping();
         cropConfirmed = true;
         setStatus("Image cropped");
     }
@@ -446,6 +445,118 @@ public class CropController {
 
     private void setStatus(String message) {
         statusLabel.setText("Status: " + message);
+    }
+    public class Crop {
+
+        private final ImageView imageView;
+        private final BorderPane imagePane;
+        private final ScrollPane imageScroll;
+        private Runnable onCropConfirmed;
+        private ResizableRectangle selectionRectangle;
+        Rectangle darkArea;
+        boolean isAreaSelected = false;
+        private boolean isCroppingActive = false;
+
+        public Crop(ImageView imageView, BorderPane imagePane, ScrollPane imageScroll) {
+            this.imageView = imageView;
+            this.imagePane = imagePane;
+            this.imageScroll = imageScroll;
+            setupCropArea();
+        }
+
+        private void setupCropArea() {
+            darkArea = new Rectangle();
+            darkArea.setFill(Color.color(0, 0, 0, 0.5));
+            darkArea.setVisible(false);
+            imagePane.getChildren().add(darkArea);
+        }
+
+        public void startselect() {
+            isCroppingActive = true;
+            imageScroll.setPannable(false);
+            removeSelection();
+
+
+            Bounds imageBounds = imageView.getBoundsInParent();
+
+            double imageWidth = imageBounds.getWidth();
+            double imageHeight = imageBounds.getHeight();
+            double rectWidth = imageWidth / 2.5;
+            double rectHeight = imageHeight / 2.5;
+            double rectX = imageBounds.getMinX() + (imageWidth - rectWidth) / 2;
+            double rectY = imageBounds.getMinY() + (imageHeight - rectHeight) / 2;
+
+            selectionRectangle = new ResizableRectangle(rectX, rectY, rectWidth, rectHeight, imagePane, this::updateDarkArea);
+            selectionRectangle.setImageView(imageView);
+
+
+            isAreaSelected = true;
+            updateDarkArea();
+            imagePane.requestFocus();
+        }
+
+        public void Cropping() {
+            if (isAreaSelected && selectionRectangle != null) {
+                imageScroll.setPannable(true);
+                cropImage(selectionRectangle.getBoundsInParent());
+                removeSelection();
+                selectionRectangle = null;
+                isAreaSelected = false;
+                darkArea.setVisible(false);
+                isCroppingActive = false;
+            }
+            if (onCropConfirmed != null) {
+                onCropConfirmed.run();
+            }
+        }
+
+        public void setOnCropConfirmed(Runnable onCropConfirmed) {
+            this.onCropConfirmed = onCropConfirmed;
+        }
+
+        private void cropImage(Bounds bounds) {
+            SnapshotParameters parameters = new SnapshotParameters();
+            parameters.setFill(Color.TRANSPARENT);
+            parameters.setViewport(new Rectangle2D(bounds.getMinX(), bounds.getMinY(), bounds.getWidth(), bounds.getHeight()));
+            WritableImage croppedImageWritable = new WritableImage((int) bounds.getWidth(), (int) bounds.getHeight());
+            imageView.snapshot(parameters, croppedImageWritable);
+            imageView.setImage(croppedImageWritable);
+        }
+
+        private void updateDarkArea() {
+            if (selectionRectangle != null) {
+                Bounds imageBounds = imageView.getBoundsInParent();
+
+                darkArea.setWidth(imageBounds.getWidth());
+                darkArea.setHeight(imageBounds.getHeight());
+                darkArea.setLayoutX(imageBounds.getMinX());
+                darkArea.setLayoutY(imageBounds.getMinY());
+
+                Rectangle outerRect = new Rectangle(0, 0, imageBounds.getWidth(), imageBounds.getHeight());
+                Rectangle innerRect = new Rectangle(
+                        selectionRectangle.getX() - imageBounds.getMinX(),
+                        selectionRectangle.getY() - imageBounds.getMinY(),
+                        selectionRectangle.getWidth(),
+                        selectionRectangle.getHeight()
+                );
+
+                Shape clippedArea = Shape.subtract(outerRect, innerRect);
+
+                darkArea.setClip(clippedArea);
+                darkArea.setVisible(true);
+            }
+        }
+
+        public void removeSelection() {
+            if (selectionRectangle != null) {
+                selectionRectangle.removeResizeHandles(imagePane);
+                imagePane.getChildren().remove(selectionRectangle);
+                selectionRectangle = null;
+            }
+            isAreaSelected = false;
+        }
+
+
     }
 
 }

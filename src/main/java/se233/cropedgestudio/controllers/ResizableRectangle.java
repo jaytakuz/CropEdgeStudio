@@ -17,34 +17,41 @@ public class ResizableRectangle extends Rectangle {
     private static final int RESIZER_SQUARE_SIDE = 10;
     private Paint resizerSquareColor = Color.valueOf("#3498db");
     private Paint rectangleStrokeColor = Color.valueOf("#3498db");
-    private double mouseClickPozX;
-    private double mouseClickPozY;
+    private double mouseClickX;
+    private double mouseClickY;
 
     private final List<Rectangle> resizeHandles = new ArrayList<>();
     private Pane parentPane;
-    private Runnable updateDarkAreaCallback;
+    private Runnable DarkArea;
     private ImageView imageView;
 
-    public ResizableRectangle(double x, double y, double width, double height, Pane pane, Runnable updateDarkAreaCallback) {
+    public ResizableRectangle(double x, double y, double width, double height, Pane pane, Runnable DarkArea) {
         super(x, y, width, height);
         this.parentPane = pane;
-        this.updateDarkAreaCallback = updateDarkAreaCallback;
+        this.DarkArea = DarkArea;
         pane.getChildren().add(this);
         super.setStroke(rectangleStrokeColor);
         super.setStrokeWidth(2);
         super.setFill(Color.color(0, 0, 0, 0));
 
-        makeResizerSquares(pane);
+        makeSWResizerSquare(pane);
+        makeSCResizerSquare(pane);
+        makeSEResizerSquare(pane);
+        makeCWResizerSquare(pane);
+        makeCEResizerSquare(pane);
+        makeNWResizerSquare(pane);
+        makeNCResizerSquare(pane);
+        makeNEResizerSquare(pane);
 
         this.setOnMousePressed(event -> {
-            mouseClickPozX = event.getX();
-            mouseClickPozY = event.getY();
+            mouseClickX = event.getX();
+            mouseClickY = event.getY();
             getParent().setCursor(Cursor.MOVE);
         });
 
         this.setOnMouseDragged(event -> {
-            double offsetX = event.getX() - mouseClickPozX;
-            double offsetY = event.getY() - mouseClickPozY;
+            double offsetX = event.getX() - mouseClickX;
+            double offsetY = event.getY() - mouseClickY;
             double newX = getX() + offsetX;
             double newY = getY() + offsetY;
 
@@ -57,9 +64,9 @@ public class ResizableRectangle extends Rectangle {
                 setY(newY);
             }
 
-            mouseClickPozX = event.getX();
-            mouseClickPozY = event.getY();
-            updateDarkAreaCallback.run();
+            mouseClickX = event.getX();
+            mouseClickY = event.getY();
+            DarkArea.run();
         });
         this.setOnMouseReleased(event -> getParent().setCursor(Cursor.DEFAULT));
     }
@@ -75,28 +82,6 @@ public class ResizableRectangle extends Rectangle {
         resizeHandles.clear();
     }
 
-    private void makeResizerSquares(Pane pane) {
-        makeNWResizerSquare(pane);
-        makeCWResizerSquare(pane);
-        makeSWResizerSquare(pane);
-        makeSCResizerSquare(pane);
-        makeSEResizerSquare(pane);
-        makeCEResizerSquare(pane);
-        makeNEResizerSquare(pane);
-        makeNCResizerSquare(pane);
-    }
-    private void updateBounds(double newX, double newY, double newWidth, double newHeight) {
-        Bounds imageBounds = imageView.getBoundsInParent();
-
-        if (newX >= imageBounds.getMinX() && newX + newWidth <= imageBounds.getMaxX()) {
-            setX(newX);
-            setWidth(newWidth);
-        }
-        if (newY >= imageBounds.getMinY() && newY + newHeight <= imageBounds.getMaxY()) {
-            setY(newY);
-            setHeight(newHeight);
-        }
-    }
 
     private void makeNWResizerSquare(Pane pane) {
         Rectangle squareNW = new Rectangle(RESIZER_SQUARE_SIDE, RESIZER_SQUARE_SIDE);
@@ -106,7 +91,7 @@ public class ResizableRectangle extends Rectangle {
         resizeHandles.add(squareNW);
 
         squareNW.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> squareNW.getParent().setCursor(Cursor.NW_RESIZE));
-        prepareResizerSquare(squareNW);
+        ResizerSquare(squareNW);
 
         squareNW.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
             double offsetX = event.getX() - getX();
@@ -122,7 +107,7 @@ public class ResizableRectangle extends Rectangle {
                 setHeight(getHeight() - offsetY);
             }
 
-            updateDarkAreaCallback.run();
+            DarkArea.run();
         });
     }
 
@@ -133,10 +118,10 @@ public class ResizableRectangle extends Rectangle {
                 squareCW.heightProperty().divide(2.0))));
         pane.getChildren().add(squareCW);
         resizeHandles.add(squareCW);
-        prepareResizerSquare(squareCW);
+        ResizerSquare(squareCW);
 
         squareCW.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> squareCW.getParent().setCursor(Cursor.W_RESIZE));
-        prepareResizerSquare(squareCW);
+        ResizerSquare(squareCW);
 
         squareCW.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
             double offsetX = event.getX() - getX();
@@ -146,7 +131,7 @@ public class ResizableRectangle extends Rectangle {
                 setX(newX);
                 setWidth(getWidth() - offsetX);
             }
-            updateDarkAreaCallback.run();
+            DarkArea.run();
         });
     }
 
@@ -159,7 +144,7 @@ public class ResizableRectangle extends Rectangle {
         resizeHandles.add(squareSW);
 
         squareSW.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> squareSW.getParent().setCursor(Cursor.SW_RESIZE));
-        prepareResizerSquare(squareSW);
+        ResizerSquare(squareSW);
 
         squareSW.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
             double offsetX = event.getX() - getX();
@@ -174,7 +159,7 @@ public class ResizableRectangle extends Rectangle {
                 setHeight(offsetY);
             }
 
-            updateDarkAreaCallback.run();
+            DarkArea.run();
         });
     }
 
@@ -188,7 +173,7 @@ public class ResizableRectangle extends Rectangle {
         resizeHandles.add(squareSC);
 
         squareSC.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> squareSC.getParent().setCursor(Cursor.S_RESIZE));
-        prepareResizerSquare(squareSC);
+        ResizerSquare(squareSC);
 
         squareSC.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
 
@@ -198,7 +183,7 @@ public class ResizableRectangle extends Rectangle {
                 setHeight(offsetY);
             }
 
-            updateDarkAreaCallback.run();
+            DarkArea.run();
         });
     }
 
@@ -212,7 +197,7 @@ public class ResizableRectangle extends Rectangle {
         resizeHandles.add(squareSE);
 
         squareSE.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> squareSE.getParent().setCursor(Cursor.SE_RESIZE));
-        prepareResizerSquare(squareSE);
+        ResizerSquare(squareSE);
 
         squareSE.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
             double offsetX = event.getX() - getX();
@@ -226,7 +211,7 @@ public class ResizableRectangle extends Rectangle {
                 setHeight(offsetY);
             }
 
-            updateDarkAreaCallback.run();
+            DarkArea.run();
         });
     }
 
@@ -240,7 +225,7 @@ public class ResizableRectangle extends Rectangle {
         resizeHandles.add(squareCE);
 
         squareCE.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> squareCE.getParent().setCursor(Cursor.E_RESIZE));
-        prepareResizerSquare(squareCE);
+        ResizerSquare(squareCE);
 
         squareCE.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
             double offsetX = event.getX() - getX();
@@ -248,7 +233,7 @@ public class ResizableRectangle extends Rectangle {
                 setWidth(offsetX);
             }
 
-            updateDarkAreaCallback.run();
+            DarkArea.run();
         });
     }
 
@@ -261,7 +246,7 @@ public class ResizableRectangle extends Rectangle {
         resizeHandles.add(squareNE);
 
         squareNE.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> squareNE.getParent().setCursor(Cursor.NE_RESIZE));
-        prepareResizerSquare(squareNE);
+        ResizerSquare(squareNE);
 
         squareNE.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
             double offsetX = event.getX() - getX();
@@ -277,7 +262,7 @@ public class ResizableRectangle extends Rectangle {
                 setHeight(getHeight() - offsetY);
             }
 
-            updateDarkAreaCallback.run();
+            DarkArea.run();
         });
     }
 
@@ -291,7 +276,7 @@ public class ResizableRectangle extends Rectangle {
         resizeHandles.add(squareNC);
 
         squareNC.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> squareNC.getParent().setCursor(Cursor.N_RESIZE));
-        prepareResizerSquare(squareNC);
+        ResizerSquare(squareNC);
 
         squareNC.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
             double offsetY = event.getY() - getY();
@@ -302,14 +287,14 @@ public class ResizableRectangle extends Rectangle {
                 setHeight(getHeight() - offsetY);
             }
 
-            updateDarkAreaCallback.run();
+            DarkArea.run();
         });
     }
 
-    private void prepareResizerSquare(Rectangle rect) {
-        rect.setFill(resizerSquareColor);
-        rect.addEventHandler(MouseEvent.MOUSE_EXITED, event ->
-                rect.getParent().setCursor(Cursor.DEFAULT));
+    private void ResizerSquare(Rectangle ResizeRectangle) {
+        ResizeRectangle.setFill(resizerSquareColor);
+        ResizeRectangle.addEventHandler(MouseEvent.MOUSE_EXITED, event ->
+                ResizeRectangle.getParent().setCursor(Cursor.DEFAULT));
     }
 
 
