@@ -12,7 +12,7 @@
       spacing="20" alignment="CENTER" styleClass="edge-detection-content">
 
     <padding>
-        <Insets top="20" right="20" bottom="20" left="20"/>
+        <Insets top="20" bottom="20"/>
     </padding>
 
     <Label text="Edge Detection" styleClass="page-title"/>
