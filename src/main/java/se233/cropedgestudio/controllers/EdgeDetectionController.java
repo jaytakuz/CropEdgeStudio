@@ -21,7 +21,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.io.FileInputStream;
@@ -69,8 +72,8 @@ public class EdgeDetectionController {
         setupDragAndDrop();
 
         sobelThresholdField = new TextField("50");
-        sobelThresholdField.setPromptText("Threshold (0-100)");
-        sobelBox = new HBox(10, new Label("Sobel Threshold:"), sobelThresholdField);
+        sobelThresholdField.setPromptText("between 0-100 %)");
+        sobelBox = new HBox(10, new Label("Sobel Threshold Percentage:"), sobelThresholdField);
         sobelBox.setAlignment(Pos.CENTER);
         sobelBox.setVisible(false);
         sobelBox.setManaged(false);
@@ -366,30 +369,59 @@ public class EdgeDetectionController {
                     throw new IllegalArgumentException("Unknown algorithm: " + algorithm);
                 }
 
-                ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+                int numThreads = Runtime.getRuntime().availableProcessors();
+                ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
+
+                AtomicInteger completedTasks = new AtomicInteger(0);
+
+                List<Future<?>> futures = new ArrayList<>();
 
                 for (int i = 0; i < total; i++) {
                     final int index = i;
-                    executorService.submit(() -> {
+                    futures.add(executorService.submit(() -> {
                         try {
                             Image originalImage = imagesList.get(index);
                             int strength = (int) robertsStrengthSlider.getValue();
                             int maskSize = radio5x5.isSelected() ? 5 : 3;
-                            Image processedImage = edgeAlgorithm.apply(originalImage, algorithm.equals("Laplacian") ? maskSize : strength);
-                            File outputFile = new File(outputDir, "processed_image_" + (index + 1) + ".png");
+                            int threshold = algorithm.equals("Sobel") ? Integer.parseInt(sobelThresholdField.getText()) : 0;
+
+                            Image processedImage = edgeAlgorithm.apply(originalImage,
+                                    algorithm.equals("Laplacian") ? maskSize :
+                                            (algorithm.equals("Sobel") ? threshold : strength));
+
+                            // Extract original filename and create new filename
+                            String originalFilename = new File(originalImage.getUrl().substring(5)).getName();
+                            String baseName = originalFilename.substring(0, originalFilename.lastIndexOf('.'));
+                            String extension = originalFilename.substring(originalFilename.lastIndexOf('.'));
+                            String newFilename = baseName + "_detected" + extension;
+
+                            File outputFile = new File(outputDir, newFilename);
+
+                            // Handle naming conflicts
+                            int counter = 1;
+                            while (outputFile.exists()) {
+                                newFilename = baseName + "_detected_" + counter + extension;
+                                outputFile = new File(outputDir, newFilename);
+                                counter++;
+                            }
+
                             ImageIO.write(ImageProcessor.fromFXImage(processedImage), "png", outputFile);
 
-                            updateProgress(index + 1, total);
-                            updateMessage("Processed image " + (index + 1) + " of " + total);
+                            int completed = completedTasks.incrementAndGet();
+                            updateProgress(completed, total);
+                            updateMessage(String.format("Processed %d%% (%d of %d images)",
+                                    (completed * 100) / total, completed, total));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                    });
+                    }));
+                }
+
+                for (Future<?> future : futures) {
+                    future.get(); // Wait for each task to complete
                 }
 
                 executorService.shutdown();
-                executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-
                 return null;
             }
         };

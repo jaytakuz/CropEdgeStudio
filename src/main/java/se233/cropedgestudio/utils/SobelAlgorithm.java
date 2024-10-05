@@ -39,8 +39,10 @@ public class SobelAlgorithm implements EdgeDetectionAlgorithm {
             }
         }
 
+        // Adjust the threshold to make it more sensitive
+        double adjustedThreshold = Math.pow(threshold / 100.0, 3) * maxGradient;
+
         // Second pass to apply the threshold
-        double thresholdValue = (threshold / 100.0) * maxGradient;
         for (int y = 1; y < height - 1; y++) {
             for (int x = 1; x < width - 1; x++) {
                 double gx = 0, gy = 0;
@@ -53,7 +55,8 @@ public class SobelAlgorithm implements EdgeDetectionAlgorithm {
                     }
                 }
                 double gradient = Math.sqrt(gx * gx + gy * gy);
-                Color edgeColor = gradient > thresholdValue ? Color.BLACK : Color.WHITE;
+                double edgeStrength = Math.min(1.0, gradient / adjustedThreshold);
+                Color edgeColor = Color.gray(1.0 - edgeStrength);
                 writer.setColor(x, y, edgeColor);
             }
         }
