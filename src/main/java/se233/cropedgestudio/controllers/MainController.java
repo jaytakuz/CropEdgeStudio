@@ -44,6 +44,11 @@ public class MainController {
         alert.showAndWait();
     }
 
+    @FXML
+    private void handleHome() {
+        loadView("/se233/cropedgestudio/views/MainView.fxml");
+    }
+
     private void loadView(String fxmlPath) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));

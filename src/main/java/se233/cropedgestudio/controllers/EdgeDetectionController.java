@@ -12,7 +12,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import se233.cropedgestudio.utils.*;
-
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
@@ -20,11 +19,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.scene.control.ProgressBar;
@@ -32,7 +33,6 @@ import javafx.scene.control.Label;
 import javafx.geometry.Insets;
 
 public class EdgeDetectionController {
-
     @FXML private ComboBox<String> algorithmChoice;
     @FXML private StackPane inputImageStack;
     @FXML private ImageView inputImageView;
@@ -323,10 +323,73 @@ public class EdgeDetectionController {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Select Output Directory");
         File outputDir = directoryChooser.showDialog(null);
-
         if (outputDir != null) {
-            processBatch(outputDir, algorithm);
+            processBatchMultithreaded(outputDir, algorithm);
         }
+    }
+
+    private void processBatchMultithreaded(File outputDir, String algorithm) {
+        Task<Void> batchTask = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                int total = imagesList.size();
+                EdgeDetectionAlgorithm edgeAlgorithm = algorithms.get(algorithm);
+                if (edgeAlgorithm == null) {
+                    throw new IllegalArgumentException("Unknown algorithm: " + algorithm);
+                }
+
+                ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+                for (int i = 0; i < total; i++) {
+                    final int index = i;
+                    executorService.submit(() -> {
+                        try {
+                            Image originalImage = imagesList.get(index);
+                            int strength = (int) robertsStrengthSlider.getValue();
+                            int maskSize = radio5x5.isSelected() ? 5 : 3;
+                            Image processedImage = edgeAlgorithm.apply(originalImage, algorithm.equals("Laplacian") ? maskSize : strength);
+                            File outputFile = new File(outputDir, "processed_image_" + (index + 1) + ".png");
+                            ImageIO.write(ImageProcessor.fromFXImage(processedImage), "png", outputFile);
+
+                            updateProgress(index + 1, total);
+                            updateMessage("Processed image " + (index + 1) + " of " + total);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+                }
+
+                executorService.shutdown();
+                executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+
+                return null;
+            }
+        };
+
+        Stage progressStage = new Stage();
+        progressStage.setTitle("Batch Processing");
+        ProgressBar progressBar = new ProgressBar();
+        progressBar.progressProperty().bind(batchTask.progressProperty());
+        Label statusLabel = new Label();
+        statusLabel.textProperty().bind(batchTask.messageProperty());
+        VBox vbox = new VBox(10, new Label("Processing images..."), progressBar, statusLabel);
+        vbox.setAlignment(Pos.CENTER);
+        vbox.setPadding(new Insets(20));
+
+        progressStage.setScene(new Scene(vbox, 300, 150));
+        progressStage.show();
+
+        batchTask.setOnSucceeded(e -> {
+            progressStage.close();
+            showAlert("Success", "Batch processing completed. Images saved to " + outputDir.getAbsolutePath(), Alert.AlertType.INFORMATION);
+        });
+
+        batchTask.setOnFailed(e -> {
+            progressStage.close();
+            showAlert("Error", "Batch processing failed: " + batchTask.getException().getMessage(), Alert.AlertType.ERROR);
+        });
+
+        new Thread(batchTask).start();
     }
 
     private void processBatch(File outputDir, String algorithm) {
