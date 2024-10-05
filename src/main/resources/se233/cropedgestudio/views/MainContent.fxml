@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="se233.cropedgestudio.controllers.MainContentController"
+      alignment="CENTER" spacing="20" styleClass="main-content">
+
+    <padding>
+        <Insets top="40" right="40" bottom="40" left="40"/>
+    </padding>
+
+    <Label text="CropEdge Studio" styleClass="title"/>
+    <Label text="Image Processing Made Simple" styleClass="subtitle"/>
+
+    <TextFlow textAlignment="CENTER" maxWidth="600">
+        <Text text="CropEdge Studio is an intuitive image processing tool designed to perform both edge detection and cropping on a variety of image formats. It integrates multiple edge detection algorithms and a user-friendly cropping interface to handle both individual and batch image processing." wrappingWidth="600"/>
+    </TextFlow>
+
+    <HBox alignment="CENTER" spacing="40" styleClass="feature-box">
+        <VBox alignment="CENTER" styleClass="feature">
+            <Label text="Edge Detection" styleClass="feature-subtitle"/>
+            <Label text="Roberts Cross, Sobel, Laplacian" styleClass="feature-description"/>
+            <Button text="Try Edge Detection" onAction="#handleDetectEdge" styleClass="feature-button"/>
+        </VBox>
+        <VBox alignment="CENTER" styleClass="feature">
+            <Label text="Cropping" styleClass="feature-subtitle"/>
+            <Label text="Interactive and Batch Processing" styleClass="feature-description"/>
+            <Button text="Try Cropping" onAction="#handleCrop" styleClass="feature-button"/>
+        </VBox>
+    </HBox>
+
+    <Label text="Select a feature above or use the menu to get started" styleClass="instruction"/>
+</VBox>

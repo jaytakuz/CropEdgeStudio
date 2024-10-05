@@ -4,13 +4,12 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.shape.Rectangle?>
 
+<?import javafx.scene.shape.Rectangle?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="se233.cropedgestudio.controllers.EdgeDetectionController"
-      spacing="20" alignment="CENTER" styleClass="edge-detection-content"
-      VBox.vgrow="ALWAYS">
+      spacing="20" alignment="CENTER" styleClass="edge-detection-content">
 
     <padding>
         <Insets top="20" right="20" bottom="20" left="20"/>
@@ -23,11 +22,11 @@
         <ComboBox fx:id="algorithmChoice" promptText="Select Algorithm" onAction="#handleAlgorithmChange" styleClass="algorithm-choice"/>
     </HBox>
 
-    <HBox spacing="40" alignment="CENTER" VBox.vgrow="ALWAYS">
+    <HBox spacing="20" alignment="CENTER" VBox.vgrow="ALWAYS">
         <VBox alignment="CENTER" spacing="10" styleClass="image-container">
             <Label text="Input Image" styleClass="image-label"/>
             <StackPane fx:id="inputImageStack" styleClass="image-stack">
-                <Rectangle width="400" height="300" styleClass="image-placeholder"/>
+                <Rectangle width="400" height="300" fill="white" stroke="lightgray"/>
                 <ImageView fx:id="inputImageView" fitWidth="400" fitHeight="300" preserveRatio="true"/>
                 <Label fx:id="dragDropLabel" text="Drag and drop image here" styleClass="drag-drop-label"/>
             </StackPane>
@@ -35,12 +34,11 @@
         <VBox alignment="CENTER" spacing="10" styleClass="image-container">
             <Label text="Output Image" styleClass="image-label"/>
             <StackPane styleClass="image-stack">
-                <Rectangle width="400" height="300" styleClass="image-placeholder"/>
+                <Rectangle width="400" height="300" fill="white" stroke="lightgray"/>
                 <ImageView fx:id="outputImageView" fitWidth="400" fitHeight="300" preserveRatio="true"/>
             </StackPane>
         </VBox>
     </HBox>
-
     <VBox fx:id="adjustmentBox" spacing="10" alignment="CENTER" visible="false" managed="false">
         <HBox fx:id="robertsBox" spacing="10" alignment="CENTER" visible="false" managed="false">
             <Label text="Roberts Cross Strength:" styleClass="slider-label"/>
@@ -58,7 +56,7 @@
         </HBox>
     </VBox>
 
-    <HBox spacing="20" alignment="CENTER">
+    <HBox spacing="10" alignment="CENTER">
         <Button text="Apply Edge Detection" onAction="#applyEdgeDetection" styleClass="action-button"/>
         <Button fx:id="previousButton" text="Previous" onAction="#handlePrevious" styleClass="nav-button"/>
         <Button fx:id="nextButton" text="Next" onAction="#handleNext" styleClass="nav-button"/>
