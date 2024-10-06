@@ -1,49 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.shape.Rectangle?>
-
 <VBox xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="se233.cropedgestudio.controllers.EdgeDetectionController"
-      spacing="10" alignment="CENTER" styleClass="edge-detection-content">
+      alignment="TOP_CENTER" spacing="20" styleClass="edge-detection-content"
+      prefWidth="800" prefHeight="600">
 
     <padding>
-        <Insets top="10" right="10" bottom="10" left="10"/>
+        <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
 
     <Label text="Edge Detection" styleClass="page-title"/>
 
-    <HBox spacing="10" alignment="CENTER">
+    <HBox spacing="20" alignment="CENTER">
         <Button text="Upload Image" onAction="#handleUploadImage" styleClass="action-button"/>
         <ComboBox fx:id="algorithmChoice" promptText="Select Algorithm" onAction="#handleAlgorithmChange" styleClass="algorithm-choice"/>
     </HBox>
 
-    <HBox spacing="10" alignment="CENTER">
-        <VBox alignment="CENTER" spacing="5" styleClass="image-container">
+    <HBox spacing="20" alignment="CENTER" VBox.vgrow="ALWAYS">
+        <VBox alignment="CENTER" spacing="10" styleClass="image-container" HBox.hgrow="ALWAYS">
             <Label text="Input Image" styleClass="image-label"/>
-            <StackPane fx:id="inputImageStack" styleClass="image-stack">
-                <Rectangle width="350" height="250" fill="white" stroke="lightgray"/>
-                <ImageView fx:id="inputImageView" fitWidth="350" fitHeight="250" preserveRatio="true"/>
+            <StackPane fx:id="inputImageStack" styleClass="image-stack" VBox.vgrow="ALWAYS">
+                <Rectangle width="340" height="240" fill="white" stroke="lightgray"/>
+                <ImageView fx:id="inputImageView" fitWidth="340" fitHeight="240" preserveRatio="true"/>
                 <Label fx:id="dragDropLabel" text="Drag and drop image here" styleClass="drag-drop-label"/>
                 <Button fx:id="previousButton" text="◀" onAction="#handlePrevious" styleClass="nav-button-left"/>
                 <Button fx:id="nextButton" text="▶" onAction="#handleNext" styleClass="nav-button-right"/>
             </StackPane>
         </VBox>
-        <VBox alignment="CENTER" spacing="5" styleClass="image-container">
+
+        <VBox alignment="CENTER" spacing="10" styleClass="image-container" HBox.hgrow="ALWAYS">
             <Label text="Output Image" styleClass="image-label"/>
-            <StackPane styleClass="image-stack">
-                <Rectangle width="350" height="250" fill="white" stroke="lightgray"/>
-                <ImageView fx:id="outputImageView" fitWidth="350" fitHeight="250" preserveRatio="true"/>
+            <StackPane styleClass="image-stack" VBox.vgrow="ALWAYS">
+                <Rectangle width="340" height="240" fill="white" stroke="lightgray"/>
+                <ImageView fx:id="outputImageView" fitWidth="340" fitHeight="240" preserveRatio="true"/>
             </StackPane>
         </VBox>
     </HBox>
 
-    <VBox fx:id="adjustmentBox" spacing="5" alignment="CENTER" visible="false" managed="false">
-        <HBox fx:id="robertsBox" spacing="10" alignment="CENTER" visible="false" managed="false">
+    <VBox fx:id="adjustmentBox" spacing="10" alignment="CENTER">
+        <HBox fx:id="robertsBox" spacing="10" alignment="CENTER">
             <Label text="Roberts Cross Strength:" styleClass="slider-label"/>
             <Slider fx:id="robertsStrengthSlider" min="0" max="100" value="50" showTickLabels="true" showTickMarks="true" styleClass="strength-slider"/>
             <Label fx:id="robertsStrengthLabel" text="50" styleClass="strength-value"/>
@@ -60,15 +60,18 @@
         <HBox fx:id="sobelBox" spacing="10" alignment="CENTER" visible="false" managed="false">
             <Label text="Sobel Threshold:" styleClass="slider-label"/>
             <TextField fx:id="sobelThresholdField" promptText="Threshold (0-100)" styleClass="threshold-input"/>
-        </HBox>    </VBox>
+        </HBox>
+    </VBox>
 
-    <HBox spacing="10" alignment="CENTER">
-    <Button text="Apply Edge Detection" onAction="#applyEdgeDetection" styleClass="action-button"/>
-    <Button text="Clear" onAction="#handleClear" styleClass="action-button"/>
-    <Button text="Save" onAction="#handleSave" styleClass="action-button"/>
-    <Button text="Batch Process" onAction="#handleBatchProcessing" styleClass="action-button"/>
-</HBox>
+    <HBox spacing="20" alignment="CENTER">
+        <Button text="Apply Edge Detection" onAction="#applyEdgeDetection" styleClass="action-button"/>
+        <Button text="Clear" onAction="#handleClear" styleClass="action-button"/>
+        <Button text="Save" onAction="#handleSave" styleClass="action-button"/>
+        <Button text="Batch Process" onAction="#handleBatchProcessing" styleClass="action-button"/>
+    </HBox>
 
-<Label fx:id="statusLabel" text="Status: Ready" styleClass="status-label"/>
-<ProgressBar fx:id="progressBar" progress="0.0" visible="false" styleClass="progress-bar"/>
+    <Label fx:id="statusLabel" text="Status: Ready" styleClass="status-label"/>
+    <ProgressBar fx:id="progressBar" progress="0.0" visible="false" styleClass="progress-bar"/>
+
+    <Region VBox.vgrow="ALWAYS" /> <!-- This will push everything up and fill remaining space -->
 </VBox>

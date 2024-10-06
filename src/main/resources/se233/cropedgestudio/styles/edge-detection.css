@@ -1,22 +1,25 @@
 .edge-detection-content {
     -fx-background-color: #f0f0f0;
+    -fx-min-height: 600px;
 }
 
 .page-title {
-    -fx-font-size: 20px;
+    -fx-font-size: 28px;
     -fx-font-weight: bold;
+    -fx-padding: 0 0 10px 0;
 }
 
 .image-container {
+    -fx-background-color: white;
     -fx-border-color: #cccccc;
     -fx-border-width: 1px;
     -fx-border-radius: 5px;
-    -fx-padding: 5px;
-}
-
-.image-label {
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
+    -fx-padding: 10px;
+    -fx-pref-width: 360px;
+    -fx-max-width: 360px;
+    -fx-min-height: 280px;
+    -fx-pref-height: 280px;
+    -fx-max-height: 280px;
 }
 
 .image-stack {
@@ -25,71 +28,41 @@
     -fx-border-radius: 5px;
 }
 
-.nav-button-left, .nav-button-right {
-    -fx-min-width: 25px;
-    -fx-min-height: 50px;
-    -fx-background-color: rgba(0, 0, 0, 0.5);
+.action-button {
+    -fx-background-color: #4CAF50;
     -fx-text-fill: white;
-    -fx-font-size: 12px;
-    -fx-padding: 5px;
-    -fx-cursor: hand;
+    -fx-font-size: 14px;
+    -fx-padding: 8px 16px;
 }
 
-.nav-button-left:hover, .nav-button-right:hover {
-    -fx-background-color: rgba(0, 0, 0, 0.7);
+.nav-button-left, .nav-button-right {
+    -fx-min-width: 30px;
+    -fx-min-height: 60px;
+    -fx-background-color: rgba(0, 0, 0, 0.5);
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
 }
 
 .nav-button-left {
     -fx-background-radius: 0 5 5 0;
-    -fx-translate-x: -162px;  /* Half of 350px (new image width) minus half of button width and border */
+    -fx-translate-x: -170px;
 }
 
 .nav-button-right {
     -fx-background-radius: 5 0 0 5;
-    -fx-translate-x: 162px;  /* Half of 350px (new image width) minus half of button width and border */
-}
-
-.drag-drop-label {
-    -fx-font-size: 12px;
-    -fx-text-fill: #888888;
-}
-
-.action-button {
-    -fx-background-color: #4CAF50;
-    -fx-text-fill: white;
-    -fx-font-size: 12px;
-    -fx-padding: 6px 12px;
-}
-
-.action-button:hover {
-    -fx-background-color: #45a049;
-}
-
-.algorithm-choice {
-    -fx-font-size: 12px;
-}
-
-.strength-slider .track {
-    -fx-background-color: #ddd;
-}
-
-.strength-slider .thumb {
-    -fx-background-color: #4CAF50;
-}
-
-.mask-size-radio {
-    -fx-font-size: 12px;
-}
-
-.threshold-input {
-    -fx-font-size: 12px;
-    -fx-pref-width: 80px;
+    -fx-translate-x: 170px;
 }
 
 .status-label {
-    -fx-font-size: 12px;
+    -fx-font-size: 14px;
+    -fx-padding: 10px 0 0 0;
 }
 
 .progress-bar {
-    -fx-pref-width: 250px;
+    -fx-pref-width: 300px;
+}
+
+.strength-slider {
+    -fx-pref-width: 200px;
 }
