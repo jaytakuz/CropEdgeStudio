@@ -57,7 +57,7 @@ public class MainController implements Initializable {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("About CropEdge Studio");
         alert.setHeaderText(null);
-        alert.setContentText("CropEdge Studio v1.0\n\nDeveloped by:\nYour Names Here");
+        alert.setContentText("CropEdge Studio v1.0\n\nDeveloped by:\nPongpiphat Kalasuk\nWatcharapong Wanna");
         alert.showAndWait();
     }
 

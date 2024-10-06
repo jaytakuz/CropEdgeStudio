@@ -72,6 +72,8 @@ public class EdgeDetectionController {
         });
         setupDragAndDrop();
 
+        updateNavigationButtons();
+
         // Load CSS after the scene is fully loaded
         Platform.runLater(() -> {
             String cssPath = "/se233/cropedgestudio/styles/edge-detection.css";
@@ -133,6 +135,9 @@ public class EdgeDetectionController {
     }
 
     private void updateNavigationButtons() {
+        boolean hasMultipleImages = imagesList.size() > 1;
+        previousButton.setVisible(hasMultipleImages);
+        nextButton.setVisible(hasMultipleImages);
         previousButton.setDisable(currentIndex <= 0);
         nextButton.setDisable(currentIndex >= imagesList.size() - 1);
     }
@@ -271,14 +276,9 @@ public class EdgeDetectionController {
     private void loadImage(File file) {
         Image image = new Image(file.toURI().toString());
         imagesList.add(image);
-        if (imagesList.size() == 1) {
-            currentIndex = 0;
-        } else {
-            currentIndex = imagesList.size() - 1;
-        }
+        currentIndex = imagesList.size() - 1;
         displayCurrentImage();
         dragDropLabel.setVisible(false);
-        updateNavigationButtons();
     }
 
     @FXML
