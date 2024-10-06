@@ -13,10 +13,8 @@
         <Menu text="File">
             <MenuItem text="Exit" onAction="#handleExit"/>
         </Menu>
-        <Menu text="Features">
-            <MenuItem text="Home" onAction="#handleHome"/>
-            <MenuItem text="Edge Detection" onAction="#handleDetectEdge"/>
-            <MenuItem text="Crop" onAction="#handleCrop"/>
+        <Menu text="Features" fx:id="featuresMenu">
+            <!-- Menu items will be populated dynamically -->
         </Menu>
         <Menu text="Help">
             <MenuItem text="About" onAction="#handleAbout"/>
