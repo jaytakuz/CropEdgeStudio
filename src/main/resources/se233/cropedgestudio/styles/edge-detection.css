@@ -15,17 +15,18 @@
     -fx-border-width: 1px;
     -fx-border-radius: 5px;
     -fx-padding: 10px;
-    -fx-pref-width: 360px;
-    -fx-max-width: 360px;
-    -fx-min-height: 280px;
-    -fx-pref-height: 280px;
-    -fx-max-height: 280px;
+    -fx-pref-width: 370px;
+    -fx-max-width: 370px;
+    -fx-min-height: 290px;
+    -fx-pref-height: 290px;
+    -fx-max-height: 290px;
 }
 
 .image-stack {
     -fx-border-color: #cccccc;
     -fx-border-width: 1px;
     -fx-border-radius: 5px;
+    -fx-padding: 5px;
 }
 
 .action-button {
@@ -42,16 +43,17 @@
     -fx-text-fill: white;
     -fx-font-size: 14px;
     -fx-cursor: hand;
+    -fx-padding: 5px;
 }
 
 .nav-button-left {
     -fx-background-radius: 0 5 5 0;
-    -fx-translate-x: -170px;
+    -fx-translate-x: -165px;
 }
 
 .nav-button-right {
     -fx-background-radius: 5 0 0 5;
-    -fx-translate-x: 170px;
+    -fx-translate-x: 165px;
 }
 
 .status-label {

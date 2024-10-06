@@ -67,6 +67,10 @@ public class EdgeDetectionController {
         algorithms.put("Sobel", new SobelAlgorithm());
         algorithms.put("Laplacian", new LaplacianAlgorithm());
         algorithmChoice.getItems().addAll("Roberts Cross", "Sobel", "Laplacian");
+        algorithmChoice.setPromptText("Select Algorithm");
+
+        robertsBox.setVisible(false);
+
         robertsStrengthSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
             robertsStrengthLabel.setText(String.format("%.0f", newVal.doubleValue()));
         });
