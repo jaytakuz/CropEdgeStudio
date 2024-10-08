@@ -1,0 +1,70 @@
+.edge-detection-content {
+    -fx-background-color: #f0f0f0;
+    -fx-min-height: 600px;
+}
+
+.page-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 10px 0;
+}
+
+.image-container {
+    -fx-background-color: white;
+    -fx-border-color: #cccccc;
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+    -fx-padding: 10px;
+    -fx-pref-width: 370px;
+    -fx-max-width: 370px;
+    -fx-min-height: 290px;
+    -fx-pref-height: 290px;
+    -fx-max-height: 290px;
+}
+
+.image-stack {
+    -fx-border-color: #cccccc;
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+    -fx-padding: 5px;
+}
+
+.action-button {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-padding: 8px 16px;
+}
+
+.nav-button-left, .nav-button-right {
+    -fx-min-width: 30px;
+    -fx-min-height: 60px;
+    -fx-background-color: rgba(0, 0, 0, 0.5);
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-padding: 5px;
+}
+
+.nav-button-left {
+    -fx-background-radius: 0 5 5 0;
+    -fx-translate-x: -165px;
+}
+
+.nav-button-right {
+    -fx-background-radius: 5 0 0 5;
+    -fx-translate-x: 165px;
+}
+
+.status-label {
+    -fx-font-size: 14px;
+    -fx-padding: 10px 0 0 0;
+}
+
+.progress-bar {
+    -fx-pref-width: 300px;
+}
+
+.strength-slider {
+    -fx-pref-width: 200px;
+}
