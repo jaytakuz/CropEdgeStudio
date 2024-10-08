@@ -15,8 +15,8 @@ import java.util.List;
 public class ResizableRectangle extends Rectangle {
 
     private static final int RESIZER_SQUARE_SIDE = 10;
-    private Paint resizerSquareColor = Color.valueOf("#3498db");
-    private Paint rectangleStrokeColor = Color.valueOf("#3498db");
+    private Paint resizerSquareColor = Color.valueOf("#4CAF50");
+    private Paint rectangleStrokeColor = Color.valueOf("#1eec26");
     private double mouseClickX;
     private double mouseClickY;
 
@@ -97,14 +97,19 @@ public class ResizableRectangle extends Rectangle {
             double offsetX = event.getX() - getX();
             double offsetY = event.getY() - getY();
 
-            if (getWidth() - offsetX > 0) {
-                setX(event.getX());
-                setWidth(getWidth() - offsetX);
-            }
+            Bounds imageBounds = imageView.getBoundsInParent();
 
-            if (getHeight() - offsetY > 0) {
-                setY(event.getY());
-                setHeight(getHeight() - offsetY);
+            double newX = Math.max(imageBounds.getMinX(), Math.min(getX() + offsetX, getX() + getWidth() - 5));
+            double newY = Math.max(imageBounds.getMinY(), Math.min(getY() + offsetY, getY() + getHeight() - 5));
+
+            double newWidth = getWidth() - (newX - getX());
+            double newHeight = getHeight() - (newY - getY());
+
+            if (newWidth > 5 && newHeight > 5) {
+                setX(newX);
+                setY(newY);
+                setWidth(newWidth);
+                setHeight(newHeight);
             }
 
             DarkArea.run();
@@ -125,11 +130,16 @@ public class ResizableRectangle extends Rectangle {
 
         squareCW.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
             double offsetX = event.getX() - getX();
-            double newX = getX() + offsetX;
 
-            if (newX >= 0 && newX <= getX() + getWidth() - 5) {
+            Bounds imageBounds = imageView.getBoundsInParent();
+
+            double newX = Math.max(imageBounds.getMinX(), Math.min(getX() + offsetX, getX() + getWidth() - 5));
+
+            double newWidth = getWidth() - (newX - getX());
+
+            if (newWidth > 5) {
                 setX(newX);
-                setWidth(getWidth() - offsetX);
+                setWidth(newWidth);
             }
             DarkArea.run();
         });
@@ -148,15 +158,19 @@ public class ResizableRectangle extends Rectangle {
 
         squareSW.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
             double offsetX = event.getX() - getX();
-            double offsetY = event.getY() - getY();
-            double newX = getX() + offsetX;
+            double offsetY = event.getY() - (getY() + getHeight());
 
-            if (newX >= 0 && newX <= getX() + getWidth() - 5) {
+            Bounds imageBounds = imageView.getBoundsInParent();
+
+            double newX = Math.max(imageBounds.getMinX(), Math.min(getX() + offsetX, getX() + getWidth() - 5));
+            double newHeight = Math.min(getHeight() + offsetY, imageBounds.getMaxY() - getY());
+
+            double newWidth = getWidth() - (newX - getX());
+
+            if (newWidth > 5 && newHeight > 5) {
                 setX(newX);
-                setWidth(getWidth() - offsetX);
-            }
-            if (offsetY >= 0 && offsetY <= getY() + getHeight() - 5) {
-                setHeight(offsetY);
+                setWidth(newWidth);
+                setHeight(newHeight);
             }
 
             DarkArea.run();
@@ -176,11 +190,14 @@ public class ResizableRectangle extends Rectangle {
         ResizerSquare(squareSC);
 
         squareSC.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
+            double offsetY = event.getY() - (getY() + getHeight());
 
-            double offsetY = event.getY() - getY();
+            Bounds imageBounds = imageView.getBoundsInParent();
 
-            if (offsetY >= 0 && offsetY <= getY() + getHeight() - 5) {
-                setHeight(offsetY);
+            double newHeight = Math.min(getHeight() + offsetY, imageBounds.getMaxY() - getY());
+
+            if (newHeight > 5) {
+                setHeight(newHeight);
             }
 
             DarkArea.run();
@@ -203,12 +220,14 @@ public class ResizableRectangle extends Rectangle {
             double offsetX = event.getX() - getX();
             double offsetY = event.getY() - getY();
 
-            if (offsetX >= 0 && offsetX <= getX() + getWidth() - 5) {
-                setWidth(offsetX);
-            }
+            Bounds imageBounds = imageView.getBoundsInParent();
 
-            if (offsetY >= 0 && offsetY <= getY() + getHeight() - 5) {
-                setHeight(offsetY);
+            double newWidth = Math.min(offsetX, imageBounds.getMaxX() - getX());
+            double newHeight = Math.min(offsetY, imageBounds.getMaxY() - getY());
+
+            if (newWidth > 5 && newHeight > 5) {
+                setWidth(newWidth);
+                setHeight(newHeight);
             }
 
             DarkArea.run();
@@ -228,9 +247,14 @@ public class ResizableRectangle extends Rectangle {
         ResizerSquare(squareCE);
 
         squareCE.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
-            double offsetX = event.getX() - getX();
-            if (offsetX >= 0 && offsetX <= getX() + getWidth() - 5) {
-                setWidth(offsetX);
+            double offsetX = event.getX() - (getX() + getWidth());
+
+            Bounds imageBounds = imageView.getBoundsInParent();
+
+            double newWidth = Math.min(getWidth() + offsetX, imageBounds.getMaxX() - getX());
+
+            if (newWidth > 5) {
+                setWidth(newWidth);
             }
 
             DarkArea.run();
@@ -249,17 +273,20 @@ public class ResizableRectangle extends Rectangle {
         ResizerSquare(squareNE);
 
         squareNE.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
-            double offsetX = event.getX() - getX();
+            double offsetX = event.getX() - (getX() + getWidth());
             double offsetY = event.getY() - getY();
-            double newY = getY() + offsetY;
 
-            if (offsetX >= 0 && offsetX <= getX() + getWidth() - 5) {
-                setWidth(offsetX);
-            }
+            Bounds imageBounds = imageView.getBoundsInParent();
 
-            if (newY >= 0 && newY <= getY() + getHeight() - 5) {
+            double newY = Math.max(imageBounds.getMinY(), Math.min(getY() + offsetY, getY() + getHeight() - 5));
+            double newWidth = Math.min(getWidth() + offsetX, imageBounds.getMaxX() - getX());
+
+            double newHeight = getHeight() - (newY - getY());
+
+            if (newWidth > 5 && newHeight > 5) {
                 setY(newY);
-                setHeight(getHeight() - offsetY);
+                setWidth(newWidth);
+                setHeight(newHeight);
             }
 
             DarkArea.run();
@@ -280,11 +307,16 @@ public class ResizableRectangle extends Rectangle {
 
         squareNC.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
             double offsetY = event.getY() - getY();
-            double newY = getY() + offsetY;
 
-            if (newY >= 0 && newY <= getY() + getHeight()) {
+            Bounds imageBounds = imageView.getBoundsInParent();
+
+            double newY = Math.max(imageBounds.getMinY(), Math.min(getY() + offsetY, getY() + getHeight() - 5));
+
+            double newHeight = getHeight() - (newY - getY());
+
+            if (newHeight > 5) {
                 setY(newY);
-                setHeight(getHeight() - offsetY);
+                setHeight(newHeight);
             }
 
             DarkArea.run();

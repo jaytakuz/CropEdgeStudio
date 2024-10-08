@@ -49,7 +49,7 @@
 }
 
 .feature-button {
-    -fx-background-color: #3498db;
+    -fx-background-color: #4CAF50;
     -fx-text-fill: white;
     -fx-font-size: 16px;
     -fx-padding: 10 20;
@@ -58,11 +58,46 @@
 }
 
 .feature-button:hover {
-    -fx-background-color: #2980b9;
+    -fx-background-color: #3e9242;
 }
 
 .instruction {
     -fx-font-size: 18px;
     -fx-font-style: italic;
-    -fx-text-fill: #34495e;
+    -fx-text-fill: #3e9242;
+}
+
+
+
+.crop-content {
+    -fx-background-color: #f0f0f0;
+    -fx-min-height: 690px;
+}
+
+.crop-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 10px 0;
+}
+
+.crop-button {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-padding: 8px 16px;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+}
+
+.crop-button:hover {
+    -fx-background-color:#3e9242 ;
+}
+
+.crop-label {
+    -fx-font-size: 14px;
+    -fx-padding: 10px 0 0 0;
+}
+
+.image-container {
+    -fx-background-color: white;
 }

@@ -5,43 +5,54 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox alignment="CENTER" fillWidth="false" prefHeight="600.0" prefWidth="800.0" spacing="15.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="se233.cropedgestudio.controllers.CropController">
-    <ScrollPane fx:id="imageScroll" fitToHeight="true" fitToWidth="true" prefHeight="302.0" prefWidth="608.0">
+<VBox alignment="CENTER" fillWidth="false" prefHeight="690.0" prefWidth="800.0" spacing="15.0" styleClass="crop-content" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="se233.cropedgestudio.controllers.CropController">
+   <HBox prefHeight="19.0" prefWidth="800.0">
+      <children>
+         <Pane prefHeight="90.0" prefWidth="849.0">
+            <children>
+               <Label alignment="CENTER" prefHeight="17.0" prefWidth="800.0" styleClass="crop-title" text="Crop">
+                  <padding>
+                     <Insets bottom="5.0" top="-10.0" />
+                  </padding>
+               </Label>
+            </children>
+         </Pane>
+      </children>
+      <VBox.margin>
+         <Insets bottom="15.0" top="-20.0" />
+      </VBox.margin>
+   </HBox>
+    <ScrollPane fx:id="imageScroll" fitToHeight="true" fitToWidth="true" prefHeight="326.0" prefWidth="702.0">
         <content>
-            <BorderPane fx:id="imagePane" prefHeight="268.0" prefWidth="569.0">
+            <BorderPane fx:id="imagePane" prefHeight="287.0" prefWidth="421.0" styleClass="image-crop">
                 <opaqueInsets>
                     <Insets />
                 </opaqueInsets>
                 <center>
-                    <ImageView fx:id="imageView" fitHeight="285.0" fitWidth="592.0" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER" />
+                    <ImageView fx:id="imageView" fitHeight="291.0" fitWidth="617.0" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER" />
                 </center>
             </BorderPane>
         </content></ScrollPane>
-    <HBox alignment="CENTER" prefHeight="75.0" prefWidth="800.0" spacing="10">
+    <HBox alignment="CENTER" prefHeight="87.0" prefWidth="800.0" spacing="10">
         <ListView fx:id="myListView" prefHeight="92.0" prefWidth="260.0" />
     </HBox>
-    <Pane prefHeight="129.0" prefWidth="800.0">
-        <HBox alignment="CENTER" layoutX="78.0" layoutY="72.0" spacing="10.0">
+    <Pane prefHeight="140.0" prefWidth="800.0">
+        <HBox alignment="CENTER" layoutX="78.0" layoutY="70.0" spacing="10.0">
             <children>
-                <Button fx:id="Select_Button" mnemonicParsing="false" onAction="#handleSelectArea" text="Select Area" />
-                <Button fx:id="Crop_Button" mnemonicParsing="false" onAction="#handleCrop" prefHeight="25.0" prefWidth="75.0" text="Crop" />
-                <Button fx:id="Save_Button" mnemonicParsing="false" onAction="#handleSave" prefHeight="25.0" prefWidth="72.0" text="Save" />
-                <Button fx:id="Clear_Select_Button" mnemonicParsing="false" onAction="#handleClearSelect" text="Clear Select" textAlignment="CENTER" />
-                <Button fx:id="Clear_Image_Button" mnemonicParsing="false" onAction="#handleClearImage" text="Clear Image" />
-                <Button fx:id="Batch_Button" mnemonicParsing="false" onAction="#handleBatchProcess" text="Batch Process" />
+                <Button fx:id="Select_Button" mnemonicParsing="false" onAction="#handleSelectArea" styleClass="crop-button" text="Select Area" />
+                <Button fx:id="Crop_Button" mnemonicParsing="false" onAction="#handleCrop" prefHeight="25.0" prefWidth="75.0" styleClass="crop-button" text="Crop" />
+                <Button fx:id="Save_Button" mnemonicParsing="false" onAction="#handleSave" prefHeight="25.0" prefWidth="72.0" styleClass="crop-button" text="Save" />
+                <Button fx:id="Clear_Select_Button" mnemonicParsing="false" onAction="#handleClearSelect" styleClass="crop-button" text="Clear Select" textAlignment="CENTER" />
+                <Button fx:id="Clear_Image_Button" mnemonicParsing="false" onAction="#handleClearImage" styleClass="crop-button" text="Clear Image" />
+                <Button fx:id="Batch_Button" mnemonicParsing="false" onAction="#handleBatchProcess" styleClass="crop-button" text="Batch Process" />
             </children>
         </HBox>
-        <HBox alignment="CENTER" layoutX="6.0" layoutY="121.0" prefHeight="17.0" prefWidth="785.0">
+        <HBox alignment="CENTER" layoutX="74.0" layoutY="-8.0" prefHeight="18.0" prefWidth="718.0">
             <children>
-                <Label fx:id="statusLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="769.0" text="Status: Ready" textAlignment="CENTER" />
+                <Label prefHeight="18.0" prefWidth="231.0" styleClass="status-Label" text="Drop file here or upload image" textAlignment="CENTER" />
             </children>
         </HBox>
-        <HBox alignment="CENTER" layoutX="315.0" layoutY="14.0" />
-        <HBox alignment="CENTER" layoutX="317.0" layoutY="-8.0" prefHeight="17.0" prefWidth="168.0">
-            <children>
-                <Label text="Drop file here or upload image" textAlignment="CENTER" />
-            </children>
-        </HBox>
-        <Button fx:id="Upload_Button" alignment="CENTER" contentDisplay="CENTER" layoutX="338.0" layoutY="21.0" mnemonicParsing="false" onAction="#handleUploadImage" text="Upload Image" textAlignment="CENTER" />
+        <Button fx:id="Upload_Button" alignment="CENTER" contentDisplay="CENTER" layoutX="338.0" layoutY="20.0" mnemonicParsing="false" onAction="#handleUploadImage" styleClass="crop-button" text="Upload Image" textAlignment="CENTER" />
+          <Label fx:id="statusLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="-8.0" layoutY="109.0" prefHeight="17.0" prefWidth="800.0" styleClass="crop-label" text="Status: Ready" textAlignment="CENTER" />
     </Pane>
 </VBox>

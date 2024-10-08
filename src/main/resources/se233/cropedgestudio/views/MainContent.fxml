@@ -1,34 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<?import javafx.geometry.Insets?>
-<VBox xmlns="http://javafx.com/javafx/17"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="se233.cropedgestudio.controllers.MainContentController"
-      alignment="CENTER" spacing="20" styleClass="main-content"
-      prefWidth="800" prefHeight="600">
+
+<VBox alignment="CENTER" prefHeight="600" prefWidth="800" spacing="20" styleClass="main-content" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="se233.cropedgestudio.controllers.MainContentController">
     <padding>
-        <Insets top="40" right="40" bottom="40" left="40"/>
+        <Insets bottom="40" left="40" right="40" top="40" />
     </padding>
-    <VBox alignment="CENTER" spacing="20" maxWidth="700">
-        <Label text="CropEdge Studio" styleClass="title"/>
-        <Label text="Image Processing Made Simple" styleClass="subtitle"/>
+    <VBox alignment="CENTER" maxWidth="700" spacing="20">
+        <Label styleClass="title" text="CropEdge Studio" />
+        <Label styleClass="subtitle" text="Image Processing Made Simple" />
         <TextFlow textAlignment="CENTER">
-            <Text text="CropEdge Studio is an intuitive image processing tool designed to perform both edge detection and cropping on a variety of image formats. It integrates multiple edge detection algorithms and a user-friendly cropping interface to handle both individual and batch image processing." wrappingWidth="600"/>
+            <Text text="CropEdge Studio is an intuitive image processing tool designed to perform both edge detection and cropping on a variety of image formats. It integrates multiple edge detection algorithms and a user-friendly cropping interface to handle both individual and batch image processing." wrappingWidth="600" />
         </TextFlow>
         <HBox alignment="CENTER" spacing="40" styleClass="feature-box">
             <VBox alignment="CENTER" styleClass="feature">
-                <Label text="Edge Detection" styleClass="feature-subtitle"/>
-                <Label text="Roberts Cross, Sobel, Laplacian" styleClass="feature-description"/>
-                <Button text="Try Edge Detection" onAction="#handleDetectEdge" styleClass="feature-button"/>
+                <Label styleClass="feature-subtitle" text="Edge Detection" />
+                <Label styleClass="feature-description" text="Roberts Cross, Sobel, Laplacian" />
+                <Button onAction="#handleDetectEdge" styleClass="feature-button" text="Use Edge Detection" />
             </VBox>
             <VBox alignment="CENTER" styleClass="feature">
-                <Label text="Cropping" styleClass="feature-subtitle"/>
-                <Label text="Interactive and Batch Processing" styleClass="feature-description"/>
-                <Button text="Try Cropping" onAction="#handleCrop" styleClass="feature-button"/>
+                <Label styleClass="feature-subtitle" text="Cropping" />
+                <Label styleClass="feature-description" text="Interactive and Batch Processing" />
+                <Button onAction="#handleCrop" styleClass="feature-button" text="Use Cropping" />
             </VBox>
         </HBox>
-        <Label text="Select a feature above or use the menu to get started" styleClass="instruction"/>
+        <Label styleClass="instruction" text="Select a feature above or use the menu to get started" />
     </VBox>
 </VBox>
