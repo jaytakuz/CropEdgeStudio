@@ -23,9 +23,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.io.FileInputStream;
@@ -47,7 +45,6 @@ public class EdgeDetectionController {
     @FXML private Slider robertsStrengthSlider;
     @FXML private Label robertsStrengthLabel;
     @FXML private HBox laplacianBox;
-    @FXML private RadioButton radio3x3;
     @FXML private RadioButton radio5x5;
     @FXML private Label statusLabel;
     @FXML private ProgressBar progressBar;
@@ -426,6 +423,7 @@ public class EdgeDetectionController {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
+                        System.out.println("Image " + (index + 1) + " processed.");
                     }));
                 }
 
@@ -464,61 +462,7 @@ public class EdgeDetectionController {
         new Thread(batchTask).start();
     }
 
-    private void processBatch(File outputDir, String algorithm) {
-        Task<Void> batchTask = new Task<>() {
-            @Override
-            protected Void call() throws Exception {
-                int total = imagesList.size();
-                EdgeDetectionAlgorithm edgeAlgorithm = algorithms.get(algorithm);
-                if (edgeAlgorithm == null) {
-                    throw new IllegalArgumentException("Unknown algorithm: " + algorithm);
-                }
 
-                for (int i = 0; i < total; i++) {
-                    Image originalImage = imagesList.get(i);
-                    int strength = (int) robertsStrengthSlider.getValue();
-                    int maskSize = radio5x5.isSelected() ? 5 : 3;
-
-                    Image processedImage = edgeAlgorithm.apply(originalImage, algorithm.equals("Laplacian") ? maskSize : strength);
-
-                    File outputFile = new File(outputDir, "processed_image_" + (i + 1) + ".png");
-                    ImageIO.write(ImageProcessor.fromFXImage(processedImage), "png", outputFile);
-
-                    updateProgress(i + 1, total);
-                    updateMessage("Processed image " + (i + 1) + " of " + total);
-                }
-                return null;
-            }
-        };
-
-        Stage progressStage = new Stage();
-        progressStage.setTitle("Batch Processing");
-
-        ProgressBar progressBar = new ProgressBar();
-        progressBar.progressProperty().bind(batchTask.progressProperty());
-
-        Label statusLabel = new Label();
-        statusLabel.textProperty().bind(batchTask.messageProperty());
-
-        VBox vbox = new VBox(10, new Label("Processing images..."), progressBar, statusLabel);
-        vbox.setAlignment(Pos.CENTER);
-        vbox.setPadding(new Insets(20));
-
-        progressStage.setScene(new Scene(vbox, 300, 150));
-        progressStage.show();
-
-        batchTask.setOnSucceeded(e -> {
-            progressStage.close();
-            showAlert("Success", "Batch processing completed. Images saved to " + outputDir.getAbsolutePath(), Alert.AlertType.INFORMATION);
-        });
-
-        batchTask.setOnFailed(e -> {
-            progressStage.close();
-            showAlert("Error", "Batch processing failed: " + batchTask.getException().getMessage(), Alert.AlertType.ERROR);
-        });
-
-        new Thread(batchTask).start();
-    }
 
     @FXML
     private void handleSave() {
@@ -528,11 +472,16 @@ public class EdgeDetectionController {
         }
 
         FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG files (*.png)", "*.png"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Save as png", "*.png"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Save as jpg", "*.jpg"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Save as jpeg", "*.jpeg"));
         File file = fileChooser.showSaveDialog(null);
+
         if (file != null) {
             try {
                 ImageIO.write(ImageProcessor.fromFXImage(outputImageView.getImage()), "png", file);
+                ImageIO.write(ImageProcessor.fromFXImage(outputImageView.getImage()), "jpg", file);
+                ImageIO.write(ImageProcessor.fromFXImage(outputImageView.getImage()), "jpeg", file);
                 setStatus("Image saved successfully");
             } catch (IOException e) {
                 showAlert("Error", "Failed to save image: " + e.getMessage(), Alert.AlertType.ERROR);
@@ -540,16 +489,6 @@ public class EdgeDetectionController {
         }
     }
 
-    @FXML
-    private void handleReset() {
-        if (!imagesList.isEmpty()) {
-            outputImageView.setImage(null);
-            displayCurrentImage();
-            setStatus("Image reset");
-        } else {
-            showAlert("Error", "No image to reset", Alert.AlertType.WARNING);
-        }
-    }
 
     private void showAlert(String title, String content, Alert.AlertType alertType) {
         Alert alert = new Alert(alertType);

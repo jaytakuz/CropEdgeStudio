@@ -1,7 +1,6 @@
 package se233.cropedgestudio.utils;
 
 import javafx.scene.image.*;
-import javafx.scene.paint.Color;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;

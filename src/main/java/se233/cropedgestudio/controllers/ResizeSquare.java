@@ -12,7 +12,7 @@ import javafx.scene.shape.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ResizableRectangle extends Rectangle {
+public class ResizeSquare extends Rectangle {
 
     private static final int RESIZER_SQUARE_SIDE = 10;
     private Paint resizerSquareColor = Color.valueOf("#4CAF50");
@@ -25,7 +25,7 @@ public class ResizableRectangle extends Rectangle {
     private Runnable DarkArea;
     private ImageView imageView;
 
-    public ResizableRectangle(double x, double y, double width, double height, Pane pane, Runnable DarkArea) {
+    public ResizeSquare(double x, double y, double width, double height, Pane pane, Runnable DarkArea) {
         super(x, y, width, height);
         this.parentPane = pane;
         this.DarkArea = DarkArea;

@@ -1,3 +1,6 @@
+// 662115032 Pongpiphat Kalasuk
+// 662115047 Watcharapong Wanna
+
 package se233.cropedgestudio;
 
 import javafx.application.Application;

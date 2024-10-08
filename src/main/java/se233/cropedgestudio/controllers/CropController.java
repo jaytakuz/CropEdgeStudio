@@ -15,7 +15,6 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
@@ -244,16 +243,9 @@ public class CropController {
         }
 
         imagePane.requestFocus();
-        resetCropHandler();
+        crop.removeSelection();
+        crop = new Crop(imageView, imagePane, imageScroll);
         setStatus("Selection cleared");
-    }
-
-    @FXML
-    private void resetCropHandler() {
-        if (crop != null) {
-            crop.removeSelection();
-            crop = new Crop(imageView, imagePane, imageScroll);
-        }
     }
 
     @FXML
@@ -269,16 +261,9 @@ public class CropController {
             batchExecutorService.shutdownNow();
             batchExecutorService = null;
         }
-
-        if (!inputListView.isEmpty()) {
+        if (!inputListView.isEmpty() && !myListView.getItems().isEmpty() && imageView.getImage() != null) {
             inputListView.clear();
-        }
-
-        if (!myListView.getItems().isEmpty()) {
             myListView.getItems().clear();
-        }
-
-        if (imageView.getImage() != null) {
             imageView.setImage(null);
         }
 
@@ -306,7 +291,7 @@ public class CropController {
 
     @FXML
     private void handleSave() {
-        if(!cropConfirmed && !crop.isAreaSelected){
+        if( imageView.getImage() == null && inputListView.isEmpty()){
             showInformation("No crop image", "Please crop image first");
             return;
         }
@@ -354,13 +339,14 @@ public class CropController {
 
             configureCroppingForAllImages(outputDir);
             setStatus("Batch processing started.");
+            System.out.println("Batch processing started");
         } catch (IllegalArgumentException e) {
             showAlert("Invalid Directory", e.getMessage());
         }
     }
 
     private void configureCroppingForAllImages(File outputDir) {
-        configureNextImage(0, outputDir, new ArrayList<>());
+        configureNextImage(1, outputDir, new ArrayList<>());
     }
 
     private void configureNextImage(int currentIndex, File outputDir, List<Image> croppedImages) {
@@ -380,6 +366,7 @@ public class CropController {
                 crop.setOnCropConfirmed(() -> {
                     croppedImages.add(imageView.getImage());
                     configureNextImage(currentIndex + 1, outputDir, croppedImages);
+                    System.out.println("Now processing image: " + currentIndex);
                 });
             }
         } catch (IOException e) {
@@ -409,6 +396,8 @@ public class CropController {
         }
         executorService.shutdown();
         imageView.setImage(null);
+        myListView.getItems().clear();
+        inputListView.clear();
         showInformation("Batch Processing Complete", "All images have been processed and saved.");
         setStatus("Batch Processing Complete");
     }
@@ -452,7 +441,7 @@ public class CropController {
         private final BorderPane imagePane;
         private final ScrollPane imageScroll;
         private Runnable onCropConfirmed;
-        private ResizableRectangle selectionRectangle;
+        private ResizeSquare selectionRectangle;
         Rectangle darkArea;
         boolean isAreaSelected = false;
         private boolean isCroppingActive = false;
@@ -486,7 +475,7 @@ public class CropController {
             double rectX = imageBounds.getMinX() + (imageWidth - rectWidth) / 2;
             double rectY = imageBounds.getMinY() + (imageHeight - rectHeight) / 2;
 
-            selectionRectangle = new ResizableRectangle(rectX, rectY, rectWidth, rectHeight, imagePane, this::updateDarkArea);
+            selectionRectangle = new ResizeSquare(rectX, rectY, rectWidth, rectHeight, imagePane, this::updateDarkArea);
             selectionRectangle.setImageView(imageView);
 
 
